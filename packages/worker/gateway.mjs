@@ -20,6 +20,13 @@ export async function gateway({ clientRoot, bootstrap, tunnel }) {
   const sockets = new Set(),
     server = http.createServer(async (req, res) => {
       res.setHeader("X-Content-Type-Options", "nosniff");
+      res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+      const localOrigin = `http://127.0.0.1:${server.address().port}`;
+      if (req.headers.host !== new URL(localOrigin).host || (req.headers.origin && req.headers.origin !== localOrigin)) {
+        res.writeHead(403, {"Content-Type":"text/plain; charset=utf-8"});
+        res.end('Accès local uniquement.');
+        return;
+      }
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader(
         "Content-Security-Policy",
@@ -57,7 +64,7 @@ export async function gateway({ clientRoot, bootstrap, tunnel }) {
   });
   server.on("upgrade", (req, socket, head) => {
     socket.on("error", () => {});
-    if (req.url !== "/ws") {
+    if (req.url !== "/ws" || req.headers.host !== `127.0.0.1:${server.address().port}`) {
       socket.destroy();
       return;
     }
