@@ -33,9 +33,9 @@ test("Le renommage du pseudo par défaut préserve le personnage et les pseudos 
   const migrated = await profileAt(directory);
   assert.deepEqual(migrated, { ...original, name: "Joueur" });
   assert.deepEqual(JSON.parse(await fs.readFile(file, "utf8")), migrated);
-  const custom = JSON.stringify({ ...original, name: "William8725" }, null, 2);
+  const custom = JSON.stringify({ ...original, name: "Explorateur42" }, null, 2);
   await fs.writeFile(file, custom);
-  assert.equal((await profileAt(directory)).name, "William8725");
+  assert.equal((await profileAt(directory)).name, "Explorateur42");
   assert.equal(await fs.readFile(file, "utf8"), custom);
 });
 
