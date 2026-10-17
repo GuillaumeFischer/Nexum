@@ -4,9 +4,9 @@ Un launcher Windows pour installer, mettre à jour et lancer les jeux de l’ate
 
 ## Jouer
 
-1. Télécharge **Atelier-Jeux-Setup-1.0.0.exe** dans **Releases → Latest**, puis installe le launcher.
+1. [Télécharge le launcher Windows](https://github.com/GuillaumeFischer/atelier-jeux/releases/latest), puis installe **Atelier-Jeux-Setup-1.0.1.exe**.
 2. Choisis ton pseudo dans **Mon profil** et installe **Deep Miners** dans la bibliothèque.
-3. Pour jouer seul, choisis **Jouer seul**. Pour retrouver une mine existante, utilise le sélecteur de mines dans **Héberger une partie**.
+3. Choisis **Jouer seul** ou **Héberger une partie**, puis retrouve une mine existante dans le sélecteur ou choisis **Créer une nouvelle mine**.
 4. Pour jouer entre amis, l’un de vous clique sur **Héberger une partie**, choisit une mine et copie son invitation. Les autres la collent dans **Rejoindre des amis**.
 
 Tu peux descendre seul dans une partie hébergée, puis accueillir tes amis. Jusqu’à six joueurs peuvent se retrouver dans une mine. Il faut la même version du jeu chez tous les joueurs.

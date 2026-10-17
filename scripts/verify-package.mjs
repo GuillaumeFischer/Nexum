@@ -15,7 +15,7 @@ try {
   const catalog=JSON.parse(await fs.readFile(path.join(appRoot,'catalog/catalog.json'),'utf8'));
   const game=catalog.games.find(g=>g.id==='deep-miners');assert(game);
   const installer=new GameInstaller(path.join(scratch,'games'));
-  await installer.install(game,{localArchive:path.resolve('artifacts',`${game.id}-${game.version}-win-x64.zip`)});
+  await installer.install(game,process.argv.includes('--download')?{}:{localArchive:path.resolve('artifacts',`${game.id}-${game.version}-win-x64.zip`)});
   const gameRoot=await installer.gameRoot(game.id),profile=await profileAt(scratch);
   child=fork(path.join(appRoot,'packages/worker/index.mjs'),[],{execPath:path.join(resources,'runtime/node.exe'),cwd:scratch,windowsHide:true,stdio:['ignore','ignore','pipe','ipc']});
   let sequence=0;const pending=new Map();
@@ -27,8 +27,8 @@ try {
   assert.equal(session.gameId,'deep-miners');
   if(process.argv.includes('--internet'))assert.match(session.invite,/^AJ1-/);
   const home=await fetch(session.url);assert(home.ok);
-  assert.match(await home.text(),/0\.13\.0/);
-  for(const asset of ['app.js','assets/mineral-iron.webp','assets/sfx/rock-break.wav'])assert((await fetch(session.url+'/'+asset)).ok,asset);
+  assert((await home.text()).includes(game.version));
+  for(const asset of ['app.js','assets/mineral-iron.webp','assets/sfx/rock-break.wav','assets/fonts/font-1.ttf'])assert((await fetch(session.url+'/'+asset)).ok,asset);
   await request('stop');
   assert.equal((await request('mines',args)).length,1);
   const done=once(child,'exit');child.disconnect();await done;

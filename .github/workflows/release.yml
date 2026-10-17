@@ -45,6 +45,9 @@ jobs:
         run: npm run dist
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - name: Vérifier le paquet fabriqué
+        if: inputs.launcher
+        run: node scripts/verify-package.mjs
       - name: Publier le launcher
         if: inputs.launcher
         run: node scripts/publish-launcher.mjs

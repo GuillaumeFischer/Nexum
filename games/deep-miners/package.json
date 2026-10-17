@@ -1,1 +1,7 @@
-{"name":"deep-miners","version":"0.13.0","private":true,"type":"module","license":"MIT"}
+{
+  "name": "deep-miners",
+  "version": "0.13.1",
+  "private": true,
+  "type": "module",
+  "license": "MIT"
+}

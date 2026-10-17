@@ -4,14 +4,14 @@
     {
       "id": "deep-miners",
       "title": "Deep Miners",
-      "version": "0.13.0",
+      "version": "0.13.1",
       "engine": "node-web",
       "multiplayer": true,
       "description": "Explore les galeries, cultive et construis une mine avec tes amis. Un joueur héberge, les autres rejoignent par invitation.",
       "players": "1–6 joueurs",
-      "url": "https://github.com/GuillaumeFischer/atelier-jeux/releases/download/game-deep-miners-v0.13.0/deep-miners-0.13.0-win-x64.zip",
-      "size": 47469985,
-      "sha256": "d84cbd8387ad2fb4d0155bf0841dbd7859ab1ecc532d70e3d4198777afa72acb"
+      "url": "https://github.com/GuillaumeFischer/atelier-jeux/releases/download/game-deep-miners-v0.13.1/deep-miners-0.13.1-win-x64.zip",
+      "size": 47712899,
+      "sha256": "9d7a88cf5b49ee199fdb881362b932001be93160982cf867504c4d72fe99bba6"
     }
   ]
 }
