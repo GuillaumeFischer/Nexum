@@ -1,7 +1,7 @@
 {
   "name": "atelier-jeux",
   "productName": "Atelier Jeux",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "type": "module",
   "main": "apps/launcher/main/index.mjs",
@@ -10,6 +10,7 @@
   "license": "MIT",
   "scripts": {
     "start": "electron .",
+    "verify:startup": "node scripts/verify-startup.mjs",
     "test": "node --test tests/*.test.mjs",
     "pack:games": "node scripts/pack-games.mjs",
     "prepare:runtime": "node scripts/prepare-runtime.mjs",

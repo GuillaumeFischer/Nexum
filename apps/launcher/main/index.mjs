@@ -327,7 +327,8 @@ if (!app.requestSingleInstanceLock()) {
     window?.show();
     window?.focus();
   });
-  await app.whenReady();
+  // Let the entry module finish loading before waiting for Electron's ready event.
+  void app.whenReady().then(async () => {
   Menu.setApplicationMenu(null);
   await fs.mkdir(dataRoot(), { recursive: true });
   profile = await profileAt(dataRoot());
@@ -434,7 +435,7 @@ if (!app.requestSingleInstanceLock()) {
   });
   await window.loadFile(ui);
   await loadCatalog();
-  void checkUpdate();
+  if (!process.env.ATELIER_STARTUP_CHECK) void checkUpdate();
   window.on("closed", () => {
     window = null;
     app.quit();
@@ -445,5 +446,16 @@ if (!app.requestSingleInstanceLock()) {
       quitting = true;
       void stopSession().finally(() => app.quit());
     }
+  });
+  if (process.env.ATELIER_STARTUP_CHECK) {
+    const { verifyStartup } = await import('./startup-check.mjs');
+    await verifyStartup({app, window, state:state(), report:process.env.ATELIER_STARTUP_CHECK});
+  }
+  }).catch(async error => {
+    const log = path.join(dataRoot(),'startup-error.log');
+    await fs.mkdir(dataRoot(),{recursive:true}).catch(()=>{});
+    await fs.appendFile(log,new Date().toISOString()+' '+(error.stack||error.message)+'\n').catch(()=>{});
+    dialog.showErrorBox('Atelier Jeux — démarrage impossible','Le launcher n’a pas pu démarrer. Tes sauvegardes sont conservées.\n\n'+error.message+'\n\nDiagnostic : '+log);
+    app.exit(1);
   });
 }

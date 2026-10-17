@@ -48,6 +48,9 @@ jobs:
       - name: Vérifier le paquet fabriqué
         if: inputs.launcher
         run: node scripts/verify-package.mjs
+      - name: Vérifier le démarrage réel du launcher
+        if: inputs.launcher
+        run: npm run verify:startup
       - name: Publier le launcher
         if: inputs.launcher
         run: node scripts/publish-launcher.mjs
