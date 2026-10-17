@@ -50,10 +50,14 @@ for (const game of catalog.games) {
   }
   await fs.mkdir("artifacts", { recursive: true });
   const notes = "artifacts/notes-" + game.id + ".md";
-  await fs.writeFile(
-    notes,
-    `${game.title} ${game.version}\n\nCette archive est installée et vérifiée automatiquement par Atelier Jeux.\n`,
-  );
+  const changes = await fs
+    .readFile(`docs/releases/${game.id}-${game.version}.md`, "utf8")
+    .catch((error) => {
+      if (error.code === "ENOENT")
+        return "Cette archive est installée et vérifiée automatiquement par NEXUM.";
+      throw error;
+    });
+  await fs.writeFile(notes, `${game.title} ${game.version}\n\n${changes}\n`);
   gh(
     [
       "release",

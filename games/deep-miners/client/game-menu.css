@@ -1,0 +1,202 @@
+body.playing {
+  overflow: hidden;
+}
+body.playing > header,
+body.playing main > footer {
+  display: none;
+}
+body.playing main {
+  margin: 0;
+  padding: 0;
+  max-width: none;
+}
+body.playing .viewport {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 0;
+  border: 0;
+  box-shadow: none;
+}
+.menu-shortcut {
+  position: absolute;
+  top: 17px;
+  right: 120px;
+  z-index: 7;
+  padding: 8px 12px;
+  background: #0b141ce8;
+  border-color: #8c7041;
+  color: #e9bd79;
+  font-size: 11px;
+}
+.game-loading {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #081018e8;
+  color: #e9bd79;
+  padding: 10px 16px;
+  z-index: 7;
+}
+#overlay > #start {
+  margin-top: 28px;
+  font-size: 15px;
+}
+dialog.game-menu {
+  width: min(760px, calc(100vw - 36px));
+  max-height: calc(100dvh - 36px);
+  padding: 28px;
+  overflow: auto;
+  color: var(--text);
+  background: linear-gradient(145deg, #19242c, #0b1219 75%);
+  border: 1px solid #8b7149;
+  border-radius: 8px;
+  box-shadow: 0 20px 100px #000b;
+  scrollbar-width: thin;
+}
+.game-menu::backdrop {
+  background: #02070bd9;
+}
+.game-menu-heading,
+.game-menu-session,
+.game-menu-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.game-menu-heading h2 {
+  font-size: 36px;
+  color: #e6bf82;
+  margin: 5px 0 0;
+}
+.game-menu-heading .eyebrow {
+  font-size: 9px;
+}
+.game-menu-session {
+  flex-wrap: wrap;
+  padding: 18px 0;
+  margin: 18px 0 0;
+  border-top: 1px solid #35414a;
+  border-bottom: 1px solid #35414a;
+}
+.game-menu-session strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 16px;
+}
+.game-menu-session .eyebrow {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.game-menu-session .small {
+  margin: 0 auto 0 0;
+}
+.game-menu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 20px;
+}
+.game-menu-grid > section {
+  background: #08121a99;
+  border: 1px solid #35414a;
+  border-radius: 5px;
+  padding: 18px;
+}
+.game-menu h3 {
+  font:
+    700 22px "Barlow Condensed",
+    sans-serif;
+  color: #e6bf82;
+  margin: 0 0 16px;
+}
+.game-menu label {
+  margin: 16px 0;
+  color: #c5ced2;
+  font-size: 12px;
+}
+.game-menu output {
+  float: right;
+  color: #e6bf82;
+}
+.game-menu input[type="range"] {
+  display: block;
+  width: 100%;
+  margin-top: 13px;
+  padding: 0;
+  accent-color: var(--gold);
+}
+.game-menu select {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 9px;
+  border: 1px solid #42505d;
+  border-radius: 3px;
+  background: #15202b;
+  color: var(--text);
+  font: inherit;
+}
+.game-menu-audio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.game-menu-audio button {
+  flex: 1;
+  white-space: nowrap;
+}
+.game-menu-hint {
+  margin-top: 28px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.game-menu-actions {
+  border-top: 1px solid #35414a;
+  padding-top: 18px;
+}
+.game-menu-actions #leave {
+  color: #e9b3a5;
+  background: #492b273f;
+  border-color: #795348;
+}
+.game-menu #notice {
+  margin: 16px 0;
+}
+.game-menu button:focus-visible {
+  outline: 2px solid #e6bf82;
+  outline-offset: 3px;
+}
+@media (max-height: 760px) {
+  dialog.game-menu {
+    padding: 20px;
+  }
+  .game-menu-grid {
+    margin-top: 12px;
+  }
+  .game-menu-grid > section {
+    padding: 13px;
+  }
+  .game-menu-session {
+    margin-top: 12px;
+    padding: 12px 0;
+  }
+  .game-menu label {
+    margin: 12px 0;
+  }
+}
+@media (max-width: 620px) {
+  .game-menu-grid {
+    grid-template-columns: 1fr;
+  }
+  .game-menu-heading,
+  .game-menu-actions {
+    flex-wrap: wrap;
+  }
+  .menu-shortcut {
+    right: 110px;
+  }
+}

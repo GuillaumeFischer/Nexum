@@ -1,7 +1,7 @@
 {
   "name": "atelier-jeux",
   "productName": "NEXUM",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "private": true,
   "type": "module",
   "main": "apps/launcher/main/index.mjs",

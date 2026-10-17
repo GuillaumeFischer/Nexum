@@ -4,7 +4,7 @@ Le launcher Windows pour installer, mettre à jour et lancer les jeux de l’ate
 
 ## Jouer
 
-1. [Télécharge le launcher Windows](https://github.com/GuillaumeFischer/Nexum/releases/latest), puis installe **NEXUM-Setup-1.1.1.exe** par-dessus l’ancienne version si elle existe.
+1. [Télécharge le launcher Windows](https://github.com/GuillaumeFischer/Nexum/releases/latest), puis installe **NEXUM-Setup-1.1.2.exe** par-dessus l’ancienne version si elle existe.
 2. Choisis ton pseudo dans **Paramètres** et installe **Deep Miners** depuis l’accueil ou **Téléchargements**.
 3. Choisis **Jouer** ou **Héberger**, puis retrouve une mine existante dans le sélecteur ou choisis **Créer une nouvelle mine**.
 4. L’hôte copie l’invitation de la partie. Les amis la collent dans **Multijoueur**. La recherche filtre la bibliothèque ; les cartes « Projet à venir » sont des aperçus sans jeu installable.
@@ -14,6 +14,8 @@ Tu peux descendre seul dans une partie hébergée, puis accueillir tes amis. Jus
 Le PC de l’hôte fait tourner la partie et conserve la mine. S’il ferme le jeu ou le launcher, ses amis sont déconnectés. Pour continuer un autre soir, il reprend la même mine et partage une nouvelle invitation. Le même profil retrouve son personnage.
 
 Pas besoin de compte GitHub ni d’installer Node.js pour jouer. Le launcher propose ses propres mises à jour, et les jeux se mettent à jour dans la bibliothèque. L’installeur initial n’a pas de signature éditeur.
+
+Le jeu s’ouvre en plein écran. Dans Deep Miners, **Échap** donne accès aux réglages audio et graphiques, à la sauvegarde et au retour au launcher. **F11** ou le bouton du menu permet de passer en mode fenêtré. Échap ferme d’abord un inventaire ou une machine ouverte. Le personnage s’arrête pendant le menu, tandis que la mine continue de vivre.
 
 ## Sauvegardes
 
@@ -27,7 +29,7 @@ Sauvegarde **le profil et les mines ensemble** avant de changer de PC. Une dési
 
 Le pseudo initial est **Joueur**. Les anciens profils portant encore le nom par défaut **Mineur** adoptent ce nom en conservant leur identité ; les pseudos personnalisés restent identiques. Le bouton du profil revient à l’accueil lorsqu’on le reclique depuis les paramètres.
 
-Le dépôt public est maintenant **GuillaumeFischer/Nexum**. Le catalogue conserve le lien historique de l’archive Deep Miners 0.13.1 pour rester lisible par les launchers précédents. NEXUM accepte ce lien et le nouveau nom du dépôt ; les nouvelles publications utilisent Nexum.
+Le dépôt public est maintenant **GuillaumeFischer/Nexum**. NEXUM accepte le nom historique atelier-jeux dans les anciens catalogues conservés en cache ; les nouvelles publications utilisent Nexum. Les anciens launchers peuvent se mettre à jour vers la version actuelle avant d’installer les jeux récents.
 
 ## Connexion Internet
 

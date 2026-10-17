@@ -23,6 +23,7 @@ import {
 } from "../../../packages/core/config.mjs";
 import { GameInstaller } from "../../../packages/core/installer.mjs";
 import { decodeInvite } from "../../../packages/network/invitation.mjs";
+import { createGameWindow } from "./game-window.mjs";
 const root = fileURLToPath(new URL("../../../", import.meta.url)),
   ui = path.join(root, "apps/launcher/ui/index.html");
 // Preserve profiles, game installations and saves across the NEXUM rebrand.
@@ -244,27 +245,10 @@ async function launch(method, args) {
       invite: args.invite,
     });
     active = result;
-    gameWindow = new BrowserWindow({
-      width: 1440,
-      height: 960,
-      minWidth: 960,
-      minHeight: 640,
+    gameWindow = createGameWindow({
+      id,
+      url: result.url,
       title: catalog.games.find((g) => g.id === id)?.title || "NEXUM",
-      autoHideMenuBar: true,
-      backgroundColor: "#071016",
-      webPreferences: {
-        nodeIntegration: false,
-        contextIsolation: true,
-        sandbox: true,
-        webSecurity: true,
-        backgroundThrottling: false,
-        partition: "persist:game-" + id,
-      },
-    });
-    const origin = new URL(result.url).origin;
-    gameWindow.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
-    gameWindow.webContents.on("will-navigate", (event, url) => {
-      if (new URL(url).origin !== origin) event.preventDefault();
     });
     gameWindow.on("close", (event) => {
       if (!quitting && active?.kind === "host") {

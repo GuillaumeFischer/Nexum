@@ -1,36 +1,384 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Deep Miners 0.13.1 — Exploration libre</title><link rel="icon" type="image/png" sizes="32x32" href="assets/deep-miners-icon-32.png"><link rel="icon" type="image/png" sizes="16x16" href="assets/deep-miners-icon-16.png"><link rel="icon" type="image/png" sizes="192x192" href="assets/deep-miners-icon-192.png"><link rel="apple-touch-icon" sizes="180x180" href="assets/deep-miners-icon-180.png"><link rel="stylesheet" href="style.css"></head><body>
-<header><a class="brand" href="/"><img class="brand-logo" src="assets/deep-miners-logo.png" alt="" width="52" height="52">DEEP MINERS<span>EXPLORATION LIBRE · 0.13.1</span></a><div class="status"><button id="openMineMenu" class="small" type="button">Mes mines</button><button id="music" class="small" type="button" aria-pressed="true">Musique : oui</button><button id="sounds" class="small" type="button" aria-pressed="true">Sons : oui</button><i id="lamp"></i><span id="connection">Prêt à descendre</span></div></header>
-<main><section id="welcome"><div class="intro"><div class="eyebrow">3–6 AMIS · EXPLORATION · SURVIE</div><h1>La fortune est en bas.<br><em>Vos amis aussi.</em></h1><p>Explorez à votre rythme. Rapportez de l’or et des cristaux, améliorez vos pioches et construisez une exploitation souterraine avec vos amis. Gardez de l’air pour rentrer à la base.</p><div class="art"><img src="assets/preview.png" alt="Aperçu du moteur du jeu : quatre mineurs, ascenseur éclairé et cristaux dans les galeries"><div>PERSONNE NE RESTE AU FOND.</div></div></div>
-<div class="panel join"><div class="eyebrow">LE POINT DE RENDEZ-VOUS</div><h2>Rassemblez l’équipe.</h2><label for="name">Votre pseudo</label><input id="name" maxlength="18" placeholder="Ex. Canari" autocomplete="nickname"><button id="create" class="primary">Créer un salon privé ↗</button><div class="divider">ou rejoindre vos amis</div><label for="code">Code du salon</label><div class="inline"><input id="code" maxlength="6" placeholder="A1B2C3"><button id="join">Rejoindre</button></div><button id="resume" class="textbutton" hidden>Reprendre ma mine →</button><div id="savedMines" class="saved-mines" hidden aria-label="Autres mines sauvegardées"></div><button id="practice" class="textbutton">Explorer seul en entraînement →</button><details><summary>Connexion au serveur</summary><label for="server">Adresse du serveur</label><input id="server" placeholder="http://localhost:3001"><small>Pour vos amis à distance : adresse HTTPS du serveur.</small></details><p class="contract">Sans chronomètre · Base commune · Mine sauvegardée<br>Explorer, rapporter, fabriquer, repartir.</p></div></section>
-<section id="session" hidden><div class="sessiontop"><div><span id="mode" class="eyebrow">SALON PRIVÉ</span><h2>Équipe <span id="roomCode"></span><button id="copy" class="small">Copier le code</button></h2></div><div class="inline"><button id="start" class="primary">Ouvrir la mine</button><button id="saveMine" type="button">Sauvegarder</button><button id="fullscreen">Plein écran</button><button id="leave">Quitter</button></div></div>
-<div class="viewport" id="viewport"><canvas id="game" aria-label="Mine coopérative 2D. ZQSD pour se déplacer, Espace pour creuser, E pour interagir."></canvas><canvas id="hud" aria-hidden="true"></canvas><div class="audio-in-game"><button id="fullscreenExit" class="small" type="button">Réduire l’écran</button><button id="fullscreenMusic" class="small" type="button" aria-pressed="true">Musique : oui</button><button id="fullscreenSounds" class="small" type="button" aria-pressed="true">Sons : oui</button></div><button id="openWorkshop" class="base-shortcut" type="button">B · Base et équipement</button><button id="escape" class="deposit-shortcut" type="button" disabled hidden>Dépôt des ressources</button><button id="openWagonCargo" class="wagon-cargo-shortcut" type="button" hidden>Chargement du wagon</button><button id="leaveWagon" class="wagon-shortcut" type="button" hidden>Descendre · E</button><button id="recoverMiner" class="recover-shortcut" type="button" hidden>Retour de secours · Sac perdu</button><div id="buildTools" class="build-tools" hidden><button id="dismantle" type="button">X · Récupérer</button><button id="placeLamp" type="button">F · Torche (0)</button><button id="placeAir" type="button">R · Relais d’air (0)</button><button id="placeDrill" type="button">G · Foreuse (0)</button></div><div id="gameNotice" role="status" aria-live="polite"></div><section id="workshop" class="workshop" role="dialog" aria-modal="true" aria-labelledby="workshopTitle" hidden>
- <div class="workshop-panel workshop-redesign">
-  <div class="workshop-heading"><div><h2 id="workshopTitle">ATELIER</h2><span id="baseStatus" class="eyebrow">FABRIQUER ET AMÉLIORER</span></div><button id="closeWorkshop" type="button">Fermer · Échap</button></div>
-  <nav class="craft-tabs" aria-label="Catégories de fabrication"><button type="button" data-category="tools" aria-pressed="true">Outils</button><button type="button" data-category="light">Éclairage</button><button type="button" data-category="build">Construction</button><button type="button" data-category="machines">Machines</button></nav>
-  <div class="workshop-stock"><h3>STOCK COMMUN</h3><div id="commonStock" class="resource-row"></div></div>
-  <div class="craft-layout"><div id="recipes" class="recipes" aria-label="Recettes"></div><aside id="recipeDetail" class="recipe-detail" aria-label="Détails de la recette sélectionnée"></aside></div>
-  <div class="workshop-footer"><p id="progressGoal" class="progress-goal"></p><p id="equipmentSummary"></p><p id="workshopNotice" role="status" aria-live="polite"></p></div>
- </div>
-</section>
-<section id="teamHUD" class="team-hud" aria-label="Équipe et ressources" hidden></section>
-<div id="quickbar" class="quickbar" hidden>
- <div class="quickbar-main"><div id="quickbarLabel" class="quickbar-label"></div><div id="quickbarItems"></div><p class="quickbar-hint">1–9 puis 0 / molette · sélectionner</p></div>
- <div class="quickbar-actions"><button id="openColony" type="button" title="Tab · Inventaire"><span class="hud-action-icon">▣</span><span>Inventaire</span><kbd>TAB</kbd></button><button id="openMap" type="button" title="M · Carte"><span class="hud-action-icon">◈</span><span>Carte</span><kbd>M</kbd></button><button id="buildSelected" type="button">CLIC · Poser</button><button id="rotateSelected" type="button" hidden title="Tourner le mur">R · Tourner ↔</button></div>
-</div>
-<section id="colony" class="workshop colony" role="dialog" aria-modal="true" aria-labelledby="colonyTitle" hidden>
- <div class="workshop-panel colony-redesign"><div class="workshop-heading"><h2 id="colonyTitle">INVENTAIRE</h2><button id="closeColony" type="button">Fermer · Échap</button></div>
- <nav class="colony-tabs" aria-label="Gestion de la mine"><button type="button" data-tab="inventory" aria-pressed="true">Inventaire</button><button type="button" data-tab="build">Construction</button><button type="button" data-tab="map">Carte</button><button type="button" data-tab="trade">Comptoir</button></nav><div id="colonyContent"></div>
- <p class="workshop-hint">TAB · Sac &nbsp; M · Carte &nbsp; B · Atelier &nbsp; X · Récupérer</p>
- </div>
-</section><div id="overlay"><div class="eyebrow">DEEP MINERS</div><h2 id="resultTitle">Connexion à l’équipe…</h2><p id="resultText">Votre casque vous attend.</p><div id="teamList"></div></div></div>
-</section>
-<div class="settings"><label for="zoom">Zoom <input id="zoom" type="range" min="0.9" max="1.35" step="0.05" value="1.1"><output id="zoomValue" for="zoom">110 %</output></label><label for="quality">Effets <select id="quality"><option value="auto">Automatiques</option><option value="high">Détaillés</option><option value="low">Réduits</option></select></label><label for="resolution">Netteté <select id="resolution"><option value="screen">Écran</option><option value="economy">Économique</option></select></label><label for="soundVolume">Bruitages <input id="soundVolume" type="range" min="0" max="100" step="5" value="60"><output id="soundVolumeValue" for="soundVolume">60 %</output></label><span id="smoothness"></span><span id="loading">Chargement des graphismes…</span></div><div id="notice" role="status" aria-live="polite"></div>
-<footer><span>GARDEZ DE L’AIR POUR REMONTER.</span></footer></main>
-<section id="mineMenu" class="mine-menu" role="dialog" aria-modal="true" aria-labelledby="mineMenuTitle" hidden><div class="mine-menu-panel"><div class="mine-menu-heading"><h2 id="mineMenuTitle">Mes mines</h2><button id="closeMineMenu" type="button">Fermer</button></div><p>Retrouve tes parties, partage leur code et gère les mines que tu as créées.</p><button id="refreshMines" type="button">Actualiser</button><p id="mineMenuMessage" role="status" aria-live="polite"></p><div id="mineMenuList"></div></div></section>
-<script src="config.js"></script><script type="module" src="app.js"></script></body></html>
-
-
-
-
-
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Deep Miners 0.13.2 — Exploration libre</title>
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="assets/deep-miners-icon-32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="assets/deep-miners-icon-16.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="assets/deep-miners-icon-192.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="assets/deep-miners-icon-180.png"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="game-menu.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/"
+        ><img
+          class="brand-logo"
+          src="assets/deep-miners-logo.png"
+          alt=""
+          width="52"
+          height="52"
+        />DEEP MINERS<span>EXPLORATION LIBRE · 0.13.2</span></a
+      >
+    </header>
+    <main>
+      <section id="welcome">
+        <div class="intro">
+          <div class="eyebrow">3–6 AMIS · EXPLORATION · SURVIE</div>
+          <h1>La fortune est en bas.<br /><em>Vos amis aussi.</em></h1>
+          <p>
+            Explorez à votre rythme. Rapportez de l’or et des cristaux,
+            améliorez vos pioches et construisez une exploitation souterraine
+            avec vos amis. Gardez de l’air pour rentrer à la base.
+          </p>
+          <div class="art">
+            <img
+              src="assets/preview.png"
+              alt="Aperçu du moteur du jeu : quatre mineurs, ascenseur éclairé et cristaux dans les galeries"
+            />
+            <div>PERSONNE NE RESTE AU FOND.</div>
+          </div>
+        </div>
+        <div class="panel join">
+          <div class="eyebrow">LE POINT DE RENDEZ-VOUS</div>
+          <h2>Rassemblez l’équipe.</h2>
+          <label for="name">Votre pseudo</label
+          ><input
+            id="name"
+            maxlength="18"
+            placeholder="Ex. Canari"
+            autocomplete="nickname"
+          /><button id="openMineMenu" type="button">Mes mines</button
+          ><button id="create" class="primary">Créer un salon privé ↗</button>
+          <div class="divider">ou rejoindre vos amis</div>
+          <label for="code">Code du salon</label>
+          <div class="inline">
+            <input id="code" maxlength="6" placeholder="A1B2C3" /><button
+              id="join"
+            >
+              Rejoindre
+            </button>
+          </div>
+          <button id="resume" class="textbutton" hidden>
+            Reprendre ma mine →
+          </button>
+          <div
+            id="savedMines"
+            class="saved-mines"
+            hidden
+            aria-label="Autres mines sauvegardées"
+          ></div>
+          <button id="practice" class="textbutton">
+            Explorer seul en entraînement →
+          </button>
+          <details>
+            <summary>Connexion au serveur</summary>
+            <label for="server">Adresse du serveur</label
+            ><input id="server" placeholder="http://localhost:3001" /><small
+              >Pour vos amis à distance : adresse HTTPS du serveur.</small
+            >
+          </details>
+          <p class="contract">
+            Sans chronomètre · Base commune · Mine sauvegardée<br />Explorer,
+            rapporter, fabriquer, repartir.
+          </p>
+        </div>
+      </section>
+      <section id="session" hidden>
+        <div class="viewport" id="viewport">
+          <canvas
+            id="game"
+            aria-label="Mine coopérative 2D. ZQSD pour se déplacer, Espace pour creuser, E pour interagir."
+          ></canvas
+          ><canvas id="hud" aria-hidden="true"></canvas
+          ><button
+            id="openGameMenu"
+            class="menu-shortcut"
+            type="button"
+            aria-haspopup="dialog"
+            aria-controls="gameMenu"
+          >
+            Échap · Menu</button
+          ><span id="loading" class="game-loading" role="status"
+            >Chargement des graphismes…</span
+          ><button id="openWorkshop" class="base-shortcut" type="button">
+            B · Base et équipement</button
+          ><button
+            id="escape"
+            class="deposit-shortcut"
+            type="button"
+            disabled
+            hidden
+          >
+            Dépôt des ressources</button
+          ><button
+            id="openWagonCargo"
+            class="wagon-cargo-shortcut"
+            type="button"
+            hidden
+          >
+            Chargement du wagon</button
+          ><button id="leaveWagon" class="wagon-shortcut" type="button" hidden>
+            Descendre · E</button
+          ><button
+            id="recoverMiner"
+            class="recover-shortcut"
+            type="button"
+            hidden
+          >
+            Retour de secours · Sac perdu
+          </button>
+          <div id="buildTools" class="build-tools" hidden>
+            <button id="dismantle" type="button">X · Récupérer</button
+            ><button id="placeLamp" type="button">F · Torche (0)</button
+            ><button id="placeAir" type="button">R · Relais d’air (0)</button
+            ><button id="placeDrill" type="button">G · Foreuse (0)</button>
+          </div>
+          <div id="gameNotice" role="status" aria-live="polite"></div>
+          <section
+            id="workshop"
+            class="workshop"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="workshopTitle"
+            hidden
+          >
+            <div class="workshop-panel workshop-redesign">
+              <div class="workshop-heading">
+                <div>
+                  <h2 id="workshopTitle">ATELIER</h2>
+                  <span id="baseStatus" class="eyebrow"
+                    >FABRIQUER ET AMÉLIORER</span
+                  >
+                </div>
+                <button id="closeWorkshop" type="button">Fermer · Échap</button>
+              </div>
+              <nav class="craft-tabs" aria-label="Catégories de fabrication">
+                <button type="button" data-category="tools" aria-pressed="true">
+                  Outils</button
+                ><button type="button" data-category="light">Éclairage</button
+                ><button type="button" data-category="build">
+                  Construction</button
+                ><button type="button" data-category="machines">
+                  Machines
+                </button>
+              </nav>
+              <div class="workshop-stock">
+                <h3>STOCK COMMUN</h3>
+                <div id="commonStock" class="resource-row"></div>
+              </div>
+              <div class="craft-layout">
+                <div id="recipes" class="recipes" aria-label="Recettes"></div>
+                <aside
+                  id="recipeDetail"
+                  class="recipe-detail"
+                  aria-label="Détails de la recette sélectionnée"
+                ></aside>
+              </div>
+              <div class="workshop-footer">
+                <p id="progressGoal" class="progress-goal"></p>
+                <p id="equipmentSummary"></p>
+                <p id="workshopNotice" role="status" aria-live="polite"></p>
+              </div>
+            </div>
+          </section>
+          <section
+            id="teamHUD"
+            class="team-hud"
+            aria-label="Équipe et ressources"
+            hidden
+          ></section>
+          <div id="quickbar" class="quickbar" hidden>
+            <div class="quickbar-main">
+              <div id="quickbarLabel" class="quickbar-label"></div>
+              <div id="quickbarItems"></div>
+              <p class="quickbar-hint">1–9 puis 0 / molette · sélectionner</p>
+            </div>
+            <div class="quickbar-actions">
+              <button id="openColony" type="button" title="Tab · Inventaire">
+                <span class="hud-action-icon">▣</span><span>Inventaire</span
+                ><kbd>TAB</kbd></button
+              ><button id="openMap" type="button" title="M · Carte">
+                <span class="hud-action-icon">◈</span><span>Carte</span
+                ><kbd>M</kbd></button
+              ><button id="buildSelected" type="button">CLIC · Poser</button
+              ><button
+                id="rotateSelected"
+                type="button"
+                hidden
+                title="Tourner le mur"
+              >
+                R · Tourner ↔
+              </button>
+            </div>
+          </div>
+          <section
+            id="colony"
+            class="workshop colony"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="colonyTitle"
+            hidden
+          >
+            <div class="workshop-panel colony-redesign">
+              <div class="workshop-heading">
+                <h2 id="colonyTitle">INVENTAIRE</h2>
+                <button id="closeColony" type="button">Fermer · Échap</button>
+              </div>
+              <nav class="colony-tabs" aria-label="Gestion de la mine">
+                <button type="button" data-tab="inventory" aria-pressed="true">
+                  Inventaire</button
+                ><button type="button" data-tab="build">Construction</button
+                ><button type="button" data-tab="map">Carte</button
+                ><button type="button" data-tab="trade">Comptoir</button>
+              </nav>
+              <div id="colonyContent"></div>
+              <p class="workshop-hint">
+                TAB · Sac &nbsp; M · Carte &nbsp; B · Atelier &nbsp; X ·
+                Récupérer
+              </p>
+            </div>
+          </section>
+          <dialog
+            id="gameMenu"
+            class="game-menu"
+            aria-labelledby="gameMenuTitle"
+          >
+            <div class="game-menu-heading">
+              <div>
+                <span class="eyebrow">DEEP MINERS · 0.13.2</span>
+                <h2 id="gameMenuTitle">Menu du jeu</h2>
+              </div>
+              <button id="resumeGame" class="primary" type="button">
+                Reprendre · Échap
+              </button>
+            </div>
+            <div class="game-menu-session">
+              <div>
+                <span id="mode" class="eyebrow">MINE PRIVÉE</span
+                ><strong>Mine <span id="roomCode"></span></strong>
+              </div>
+              <button id="copy" class="small" type="button">
+                Copier le code</button
+              ><span class="status"
+                ><i id="lamp"></i><span id="connection">Connexion…</span></span
+              >
+            </div>
+            <div class="game-menu-grid">
+              <section>
+                <h3>Affichage</h3>
+                <label for="zoom"
+                  >Zoom <output id="zoomValue" for="zoom">110 %</output
+                  ><input
+                    id="zoom"
+                    type="range"
+                    min="0.9"
+                    max="1.35"
+                    step="0.05"
+                    value="1.1" /></label
+                ><label for="quality"
+                  >Effets<select id="quality">
+                    <option value="auto">Automatiques</option>
+                    <option value="high">Détaillés</option>
+                    <option value="low">Réduits</option>
+                  </select></label
+                ><label for="resolution"
+                  >Netteté<select id="resolution">
+                    <option value="screen">Écran</option>
+                    <option value="economy">Économique</option>
+                  </select></label
+                ><button id="fullscreen" type="button">Mode fenêtré</button
+                ><small>F11 · Changer le mode d’affichage</small>
+              </section>
+              <section>
+                <h3>Audio</h3>
+                <div class="game-menu-audio">
+                  <button id="music" type="button" aria-pressed="true">
+                    Musique : oui</button
+                  ><button id="sounds" type="button" aria-pressed="true">
+                    Sons : oui
+                  </button>
+                </div>
+                <label for="soundVolume"
+                  >Volume des bruitages
+                  <output id="soundVolumeValue" for="soundVolume">60 %</output
+                  ><input
+                    id="soundVolume"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value="60"
+                /></label>
+                <p class="game-menu-hint">
+                  La mine continue de vivre pendant que ce menu est ouvert.
+                </p>
+                <span id="smoothness"></span>
+              </section>
+            </div>
+            <p id="notice" role="status" aria-live="polite"></p>
+            <div class="game-menu-actions">
+              <button id="saveMine" type="button">Sauvegarder la mine</button
+              ><button id="leave" type="button">Retour au launcher</button>
+            </div>
+          </dialog>
+          <div id="overlay">
+            <div class="eyebrow">DEEP MINERS</div>
+            <h2 id="resultTitle">Connexion à l’équipe…</h2>
+            <p id="resultText">Votre casque vous attend.</p>
+            <div id="teamList"></div>
+            <button id="start" class="primary" type="button">
+              Ouvrir la mine
+            </button>
+          </div>
+        </div>
+      </section>
+      <footer><span>GARDEZ DE L’AIR POUR REMONTER.</span></footer>
+    </main>
+    <section
+      id="mineMenu"
+      class="mine-menu"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="mineMenuTitle"
+      hidden
+    >
+      <div class="mine-menu-panel">
+        <div class="mine-menu-heading">
+          <h2 id="mineMenuTitle">Mes mines</h2>
+          <button id="closeMineMenu" type="button">Fermer</button>
+        </div>
+        <p>
+          Retrouve tes parties, partage leur code et gère les mines que tu as
+          créées.
+        </p>
+        <button id="refreshMines" type="button">Actualiser</button>
+        <p id="mineMenuMessage" role="status" aria-live="polite"></p>
+        <div id="mineMenuList"></div>
+      </div>
+    </section>
+    <script src="config.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

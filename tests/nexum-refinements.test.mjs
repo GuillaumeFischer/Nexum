@@ -47,13 +47,16 @@ test("Le catalogue reste lisible par les anciens launchers et Nexum après renom
   assert.equal(distribution.repo, "Nexum");
   assert.equal(githubDistribution(distribution), true);
   assert.equal(validateCatalog(catalog, distribution), catalog);
+  const legacy = structuredClone(catalog);
+  legacy.games[0].url = legacy.games[0].url.replace("/Nexum/", "/atelier-jeux/");
   assert.equal(
-    validateCatalog(catalog, {
+    validateCatalog(legacy, {
       owner: distribution.owner,
       repo: "atelier-jeux",
     }),
-    catalog,
+    legacy,
   );
+  assert.equal(validateCatalog(legacy, distribution), legacy);
   const canonical = structuredClone(catalog);
   canonical.games[0].url = canonical.games[0].url.replace(
     "/atelier-jeux/",

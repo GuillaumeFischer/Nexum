@@ -55,7 +55,6 @@
 
 
 
-.audio-in-game{display:none;position:absolute;top:14px;right:145px;z-index:2;gap:6px}.viewport:fullscreen .audio-in-game{display:flex}.audio-in-game button{margin:0;background:#111921e6}.status .small{margin-left:0}
 
 .base-shortcut{position:absolute;z-index:3;top:89px;left:20px;background:#10171bd9;border-color:#8c7041;color:#e9bd79;padding:8px 12px;font-size:11px}.build-tools{position:absolute;z-index:3;right:20px;bottom:77px;display:flex;gap:7px}.build-tools button{background:#0b1118db;padding:8px 10px;font-size:10px}.workshop{position:absolute;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;background:#02070be8;padding:24px}.workshop-panel{width:min(940px,100%);max-height:100%;overflow:auto;background:linear-gradient(135deg,#202a2b,#0b1219);border:1px solid #8b7149;padding:24px;box-shadow:0 12px 80px #000b;border-radius:5px}.workshop-heading{display:flex;justify-content:space-between;align-items:center;gap:20px}.workshop-heading h2{font-size:36px;color:#e6bf82}.progress-goal{background:#b1874220;border-left:2px solid #bf965b;padding:10px 14px;color:#e3c292;font-size:12px;line-height:1.5}.stock-section{padding:10px 0 15px;border-bottom:1px solid #344144}.stock-section h3{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#a5b4b5;margin:12px 0 8px}.resource-row{display:flex;flex-wrap:wrap;gap:8px}.stock-chip{border:1px solid #425051;background:#070e14;padding:7px 11px;color:var(--resource);font-size:11px;border-left:3px solid var(--resource)}#equipmentSummary{font-size:11px;margin:14px 0 0}.recipes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.craft-card{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0c141bb0;border:1px solid #3b484a;padding:12px}.craft-description{min-width:0}.craft-card h3{color:#dcd3bf;font-size:13px;margin:0 0 5px}.craft-card p{font-size:10px;line-height:1.5;margin:0 0 8px}.craft-cost{display:flex;flex-wrap:wrap;gap:6px;font-size:10px}.craft-button{max-width:126px;min-width:95px;padding:8px;font-size:10px;background:#b99b63;color:#0c141b;border-color:#dbc591}.craft-button:disabled{background:#263339;color:#b8bfba;opacity:1;border-color:#35434b;cursor:default}.workshop-hint{font-size:10px;line-height:1.6;margin-bottom:0}#workshopNotice{color:#ebae7f;font-size:12px}#gameNotice{position:absolute;left:50%;top:85px;transform:translateX(-50%);max-width:50%;background:#090e15d9;color:#e8b77c;padding:7px 12px;font-size:12px;z-index:4;pointer-events:none}#gameNotice:empty{display:none}@media(max-width:900px){.recipes{grid-template-columns:1fr}.workshop{padding:10px}.workshop-panel{padding:15px}.build-tools{right:10px;bottom:125px;flex-direction:column}.audio-in-game{right:125px!important}.workshop-heading h2{font-size:29px}}
 
@@ -105,15 +104,15 @@
 .ingredient.missing strong,.ingredient.missing .ingredient-status{color:#eb997e}
 .recipe-detail .craft-button{display:block;max-width:none;width:100%;font-size:15px;padding:12px;margin-top:14px;background:linear-gradient(#edc779,#bd8c42);border-color:#ecc784}
 .recipe-detail .craft-button:disabled{background:#25313b;color:#b7bdbd;border-color:#3a4851}
-.viewport:not(:fullscreen) .recipe-detail .detail-art{display:none}
-.viewport:not(:fullscreen) .recipe-detail{padding:10px}
-.viewport:not(:fullscreen) .recipe-detail h3{font-size:23px;margin-bottom:7px}
-.viewport:not(:fullscreen) .recipe-detail .item-description{font-size:11px;line-height:1.4;margin:5px 0}
-.viewport:not(:fullscreen) .recipe-detail h4{margin:10px 0 5px;font-size:10px}
-.viewport:not(:fullscreen) .recipe-detail .ingredient{padding:3px 6px;margin:4px 0;font-size:11px}
-.viewport:not(:fullscreen) .recipe-detail .ingredient .item-icon{width:26px;height:26px}
-.viewport:not(:fullscreen) .recipe-detail .craft-button{margin-top:8px;padding:8px;font-size:13px}
-.viewport:not(:fullscreen) .recipe-detail .craft-reason{font-size:10px;margin:6px 0}
+.viewport:not(.immersive):not(:fullscreen) .recipe-detail .detail-art{display:none}
+.viewport:not(.immersive):not(:fullscreen) .recipe-detail{padding:10px}
+.viewport:not(.immersive):not(:fullscreen) .recipe-detail h3{font-size:23px;margin-bottom:7px}
+.viewport:not(.immersive):not(:fullscreen) .recipe-detail .item-description{font-size:11px;line-height:1.4;margin:5px 0}
+.viewport:not(.immersive):not(:fullscreen) .recipe-detail h4{margin:10px 0 5px;font-size:10px}
+.viewport:not(.immersive):not(:fullscreen) .recipe-detail .ingredient{padding:3px 6px;margin:4px 0;font-size:11px}
+.viewport:not(.immersive):not(:fullscreen) .recipe-detail .ingredient .item-icon{width:26px;height:26px}
+.viewport:not(.immersive):not(:fullscreen) .recipe-detail .craft-button{margin-top:8px;padding:8px;font-size:13px}
+.viewport:not(.immersive):not(:fullscreen) .recipe-detail .craft-reason{font-size:10px;margin:6px 0}
 .craft-reason{font-size:11px;color:#bcb6a9;text-align:center;line-height:1.5}
 .workshop-footer{flex:none;border-top:1px solid #4d4434;margin-top:12px;padding-top:8px}
 .progress-goal{padding:0;margin:0;background:none;border:0;font-size:11px}
@@ -217,19 +216,19 @@ button:focus-visible{outline:2px solid #ffd082;outline-offset:3px}
 .inventory-equipment{position:absolute;right:10px;top:6px;width:28%;max-width:310px}
 .inventory-equipment .equipment-row{border:0;padding-top:0}
 .inventory-equipment h4{margin-bottom:5px}
-.viewport:not(:fullscreen) .workshop-panel.workshop-redesign,.viewport:not(:fullscreen) .workshop-panel.colony-redesign{padding:14px}
-.viewport:not(:fullscreen) .workshop-heading{margin-bottom:8px}
-.viewport:not(:fullscreen) .workshop-heading h2{font-size:29px}
-.viewport:not(:fullscreen) .workshop-heading>button{padding:8px 12px}
-.viewport:not(:fullscreen) .craft-tabs button,.viewport:not(:fullscreen) .colony-tabs button{padding:8px 12px}
-.viewport:not(:fullscreen) .craft-tabs,.viewport:not(:fullscreen) .colony-tabs{margin-bottom:8px}
-.viewport:not(:fullscreen) .workshop-stock{padding:5px;margin-bottom:8px}
-.viewport:not(:fullscreen) .illustrated-stock{padding:3px 6px;grid-template-columns:32px auto;grid-template-rows:14px 18px}
-.viewport:not(:fullscreen) .illustrated-stock .item-icon{width:32px;height:32px}
-.viewport:not(:fullscreen) .illustrated-stock strong{font-size:14px}
-.viewport:not(:fullscreen) .workshop-footer{margin-top:8px;padding-top:5px}
-.viewport:not(:fullscreen) .workshop-footer p{line-height:1.3;margin:3px 0;font-size:9px}
-.viewport:not(:fullscreen) .inventory-hotbar .hotbar-slot{width:36px;height:36px}
+.viewport:not(.immersive):not(:fullscreen) .workshop-panel.workshop-redesign,.viewport:not(.immersive):not(:fullscreen) .workshop-panel.colony-redesign{padding:14px}
+.viewport:not(.immersive):not(:fullscreen) .workshop-heading{margin-bottom:8px}
+.viewport:not(.immersive):not(:fullscreen) .workshop-heading h2{font-size:29px}
+.viewport:not(.immersive):not(:fullscreen) .workshop-heading>button{padding:8px 12px}
+.viewport:not(.immersive):not(:fullscreen) .craft-tabs button,.viewport:not(.immersive):not(:fullscreen) .colony-tabs button{padding:8px 12px}
+.viewport:not(.immersive):not(:fullscreen) .craft-tabs,.viewport:not(.immersive):not(:fullscreen) .colony-tabs{margin-bottom:8px}
+.viewport:not(.immersive):not(:fullscreen) .workshop-stock{padding:5px;margin-bottom:8px}
+.viewport:not(.immersive):not(:fullscreen) .illustrated-stock{padding:3px 6px;grid-template-columns:32px auto;grid-template-rows:14px 18px}
+.viewport:not(.immersive):not(:fullscreen) .illustrated-stock .item-icon{width:32px;height:32px}
+.viewport:not(.immersive):not(:fullscreen) .illustrated-stock strong{font-size:14px}
+.viewport:not(.immersive):not(:fullscreen) .workshop-footer{margin-top:8px;padding-top:5px}
+.viewport:not(.immersive):not(:fullscreen) .workshop-footer p{line-height:1.3;margin:3px 0;font-size:9px}
+.viewport:not(.immersive):not(:fullscreen) .inventory-hotbar .hotbar-slot{width:36px;height:36px}
 @media(max-width:900px){.inventory-equipment .item-icon{width:24px;height:24px}.inventory-equipment small{font-size:7px}}
 
 /* Restrained HUD and illustrated reference cards — 0.9.4 */

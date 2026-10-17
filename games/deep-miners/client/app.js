@@ -1,3 +1,4 @@
+import {createGameMenu} from './game-menu.js';
 import {quickbarSlot} from './quickbar-controls.js';
 import {isFieldItem} from './agriculture.js';
 import {createMineSessions} from './mine-sessions.js';
@@ -15,16 +16,16 @@ import {createSoundDirector} from './sound-events.js';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d'),hudCanvas=$('hud'),hudContext=hudCanvas.getContext('2d');
 const desktop=window.DEEP_MINERS_DESKTOP;if(desktop?.reconnectKey)localStorage.setItem('dm-miner-key',desktop.reconnectKey);
 const mineSessions=createMineSessions(localStorage,sessionStorage);
-const music=createMusic(new Audio('assets/deep-miners-intro.mp3'),localStorage,[$('music'),$('fullscreenMusic')]);
+const music=createMusic(new Audio('assets/deep-miners-intro.mp3'),localStorage,[$('music')]);
 document.addEventListener('pointerdown',music.start,{capture:true});
 document.addEventListener('keydown',music.start,{capture:true});
-function soundStatus({enabled,volume,available}){for(const button of [$('sounds'),$('fullscreenSounds')]){button.textContent=available?(enabled?'Sons : oui':'Sons : non'):'Sons indisponibles';button.setAttribute('aria-pressed',String(enabled));button.disabled=!available;}$('soundVolume').value=Math.round(volume*100);$('soundVolumeValue').textContent=Math.round(volume*100)+' %';}
+function soundStatus({enabled,volume,available}){for(const button of [$('sounds')]){button.textContent=available?(enabled?'Sons : oui':'Sons : non'):'Sons indisponibles';button.setAttribute('aria-pressed',String(enabled));button.disabled=!available;}$('soundVolume').value=Math.round(volume*100);$('soundVolumeValue').textContent=Math.round(volume*100)+' %';}
 const soundPlayer=createSoundPlayer({onStatus:soundStatus}),soundDirector=createSoundDirector(soundPlayer);
 let focused=true,reconnectAttempts=0,lastRadioAt=0,renderFailures=0,connectionTimer=null;
 document.addEventListener('pointerdown',()=>void soundPlayer.start(),{capture:true});
 document.addEventListener('keydown',()=>void soundPlayer.start(),{capture:true});
 document.addEventListener('click',e=>{if(e.target.closest('button'))soundPlayer.play('ui');});
-for(const button of [$('sounds'),$('fullscreenSounds')])button.onclick=()=>{soundPlayer.setEnabled(!soundPlayer.enabled);button.blur();};
+for(const button of [$('sounds')])button.onclick=()=>{soundPlayer.setEnabled(!soundPlayer.enabled);button.blur();};
 $('soundVolume').oninput=e=>soundPlayer.setVolume(Number(e.target.value)/100);
 addEventListener('blur',()=>{focused=false;soundDirector.pause();});addEventListener('focus',()=>{focused=true;});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)soundDirector.pause();});
@@ -58,7 +59,8 @@ const notice=message=>{ $('notice').textContent=message;$('gameNotice').textCont
 const baseUI=createBaseUI({command,releaseKeys,notify:notice,closeColony:()=>colonyUI.close()});
 const colonyUI=createColonyUI({command,releaseKeys,selectionChanged:refreshKeys,notify:notice,closeWorkshop:()=>baseUI.close(),openWorkshop:()=>baseUI.open()});
 const mineMenu=createMineMenu({root:$('mineMenu'),registry:mineSessions,server:base,onResume:resumeMine,onChange:updateSavedMines,notify:notice,onOpen:()=>{releaseKeys();baseUI.close();colonyUI.close();},onDeleted:(code,origin)=>{if(session?.code===code&&base()===origin)reset();}});
-$('openMineMenu').onclick=()=>mineMenu.open();
+const gameMenu=createGameMenu({root:$('gameMenu'),button:$('openGameMenu'),canOpen:()=>!!session,hasOtherPanel:()=>baseUI.opened||colonyUI.opened||mineMenu.opened,releaseKeys});
+$('openMineMenu').onclick=()=>{gameMenu.close();mineMenu.open();};
 loadAssets().then(assets=>{renderer=createRenderer(assets);$('loading').hidden=true;}).catch(e=>{notice(e.message+' Rechargez la page.');$('loading').textContent='Chargement des graphismes interrompu.';});
 function status(text,color='#dcb16d'){$('connection').textContent=text;$('lamp').style.background=color;}
 function updateSavedMines(){
@@ -67,9 +69,9 @@ function updateSavedMines(){
  if(mines.length>1){const heading=document.createElement('p');heading.textContent='Autres mines sauvegardées';list.append(heading);for(const mine of mines.slice(1)){const button=document.createElement('button');button.type='button';button.className='saved-mine';button.textContent='Reprendre '+mine.code+(mine.name?' · '+mine.name:'');button.onclick=()=>resumeMine(mine);list.append(button);}}
 }
 function save(){if(session){try{mineSessions.remember({...session,server:base()},{name:state?.players.find(p=>p.id===session.id)?.name||$('name').value});updateSavedMines();}catch{notice('La mine est sauvegardée sur le serveur, mais sa connexion ne peut pas être mémorisée dans ce navigateur.');}}}
-function reset(){reconnectAttempts=0;renderFailures=0;clearTimeout(connectionTimer);clearTimeout(reconnectTimer);const old=socket;socket=null;old?.close();session=null;state=null;connected=false;keys={};heldCodes.clear();netcode.reset();soundDirector.reset();inputSequence=0;uiSignature='';syncPending=false;baseUI.close();colonyUI.close();mineSessions.clearActive();updateSavedMines();$('session').hidden=true;$('welcome').hidden=false;status('Prêt à descendre');}
+function reset(){gameMenu.close();document.body.classList.remove('playing');$('viewport').classList.remove('immersive');reconnectAttempts=0;renderFailures=0;clearTimeout(connectionTimer);clearTimeout(reconnectTimer);const old=socket;socket=null;old?.close();session=null;state=null;connected=false;keys={};heldCodes.clear();netcode.reset();soundDirector.reset();inputSequence=0;uiSignature='';syncPending=false;baseUI.close();colonyUI.close();mineSessions.clearActive();updateSavedMines();$('session').hidden=true;$('welcome').hidden=false;status('Prêt à descendre');}
 function resumeMine(saved){
- if(!saved)return;reset();session={code:saved.code,token:saved.token,id:saved.id};$('server').value=saved.server;if(saved.name)$('name').value=saved.name;$('welcome').hidden=true;$('session').hidden=false;$('roomCode').textContent=saved.code;$('overlay').hidden=false;$('resultTitle').textContent='Reprise de la mine '+saved.code;$('resultText').textContent='Connexion à ta sauvegarde…';$('teamList').replaceChildren();notice('Reprise de la mine '+saved.code+'…');connect();
+ if(!saved)return;reset();session={code:saved.code,token:saved.token,id:saved.id};$('server').value=saved.server;if(saved.name)$('name').value=saved.name;$('welcome').hidden=true;$('session').hidden=false;document.body.classList.add('playing');$('viewport').classList.add('immersive');$('roomCode').textContent=saved.code;$('overlay').hidden=false;$('resultTitle').textContent='Reprise de la mine '+saved.code;$('resultText').textContent='Connexion à ta sauvegarde…';$('teamList').replaceChildren();notice('Reprise de la mine '+saved.code+'…');connect();
 }
 function connect(){
  let reconnectKey;try{reconnectKey=mineSessions.reconnectKey();}catch{notice('Autorise le stockage du navigateur pour conserver ton personnage, puis reprends cette mine.');status('Connexion du personnage à mémoriser');return;}
@@ -94,20 +96,22 @@ async function enter(type,practice=false){
  if(hostedServerMissing()){notice('Connecte une adresse HTTPS de serveur pour jouer.');return;}
  if(type==='join'){const mine=mineSessions.find($('code').value.trim().toUpperCase(),base());if(mine){resumeMine(mine);return;}}
  const button=type==='join'?$('join'):practice?$('practice'):$('create');button.disabled=true;
- try{const reconnectKey=mineSessions.reconnectKey();const response=await fetch(base()+'/api/'+type,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('name').value,code:$('code').value.trim().toUpperCase(),practice,reconnectKey})});const data=await response.json();if(!response.ok)throw Error(data.error);session=data;localStorage.setItem('dm-server',base());localStorage.setItem('dm-name',$('name').value);save();$('welcome').hidden=true;$('session').hidden=false;connect();notice('');}catch(e){notice('Connexion impossible : '+e.message);}finally{button.disabled=false;}
+ try{const reconnectKey=mineSessions.reconnectKey();const response=await fetch(base()+'/api/'+type,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('name').value,code:$('code').value.trim().toUpperCase(),practice,reconnectKey})});const data=await response.json();if(!response.ok)throw Error(data.error);session=data;localStorage.setItem('dm-server',base());localStorage.setItem('dm-name',$('name').value);save();$('welcome').hidden=true;$('session').hidden=false;document.body.classList.add('playing');$('viewport').classList.add('immersive');connect();notice('');}catch(e){notice('Connexion impossible : '+e.message);}finally{button.disabled=false;}
 }
 function command(type,details={}){return new Promise((resolve,reject)=>{if(!connected||socket?.readyState!==WebSocket.OPEN)return reject(Error('Attendez la reconnexion.'));const requestId=++nextRequest,timer=setTimeout(()=>{pending.delete(requestId);reject(Error('Le serveur ne répond pas.'));},10000);pending.set(requestId,{resolve,reject,timer});try{socket.send(JSON.stringify({type,...details,requestId}));}catch{clearTimeout(timer);pending.delete(requestId);reject(Error('Connexion interrompue.'));}});}
 $('create').onclick=()=>enter('create');$('join').onclick=()=>enter('join');$('practice').onclick=()=>enter('create',true);
 $('start').onclick=()=>command('start').catch(e=>notice(e.message));$('escape').onclick=()=>command('escape').catch(e=>notice(e.message));
 $('leave').onclick=()=>{if(desktop){window.close();return;}const code=session?.code;save();reset();notice('Mine '+code+' conservée. Reprends-la avec le bouton portant ce code.');};
 $('resume').onclick=()=>resumeMine(mineSessions.list()[0]);
-$('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('viewport').requestFullscreen();}catch{notice('Le plein écran n’est pas disponible dans ce navigateur.');}};
-$('fullscreenExit').onclick=()=>document.exitFullscreen().catch(()=>{});
-document.addEventListener('fullscreenchange',()=>{$('fullscreen').textContent=document.fullscreenElement?'Réduire l’écran':'Plein écran';});
+let fullscreen=false;
+function displayStatus(display){fullscreen=display.fullscreen;$('fullscreen').textContent=fullscreen?'Mode fenêtré':'Plein écran';$('fullscreen').setAttribute('aria-pressed',String(fullscreen));}
+if(window.nexumGame){window.nexumGame.onDisplayChange(displayStatus);window.nexumGame.display().then(displayStatus).catch(()=>{});}
+document.addEventListener('fullscreenchange',()=>{if(!window.nexumGame)displayStatus({fullscreen:!!document.fullscreenElement});});
+$('fullscreen').onclick=async()=>{releaseKeys();try{if(window.nexumGame)displayStatus(await window.nexumGame.setFullscreen(!fullscreen));else if(document.fullscreenElement)await document.exitFullscreen();else await $('viewport').requestFullscreen();}catch{notice('Ce mode d’affichage n’est pas disponible.');}};
 $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(session.code);notice('Code copié : '+session.code);}catch{notice('Code à partager : '+session.code);}};
 $('openWagonCargo').onclick=()=>{const me=state?.players.find(p=>p.id===session?.id),wagon=state?.installations.filter(w=>w.kind==='wagon'&&Math.hypot(w.x-me.x,w.y-me.y)<=1.35).sort((a,b)=>Math.hypot(a.x-me.x,a.y-me.y)-Math.hypot(b.x-me.x,b.y-me.y))[0];if(wagon)colonyUI.open('storage',wagon.id);};
 $('leaveWagon').onclick=()=>command('wagon',{id:state?.players.find(p=>p.id===session?.id)?.vehicleId,action:'exit'}).catch(e=>notice(e.message));
-$('saveMine').onclick=()=>command('save').then(()=>notice('Mine sauvegardée : position, inventaire et constructions.')).catch(e=>notice(e.message));
+$('saveMine').onclick=async()=>{const button=$('saveMine');button.disabled=true;try{await command('save');notice('Mine sauvegardée : position, inventaire et constructions.');}catch(e){notice(e.message);}finally{button.disabled=false;}};
 function renderUI(){
  const me=state.players.find(p=>p.id===session.id);if(!me){reset();notice('Session expirée. Rejoignez un salon.');return;}
  baseUI.render(state,me);
@@ -121,7 +125,7 @@ function renderUI(){
  const overlay=$('overlay');overlay.hidden=state.phase==='running';if(!overlay.hidden){$('resultTitle').textContent=state.phase==='lobby'?'L’équipe se rassemble.':state.phase==='won'?'Contrat rempli.':'La mine a gagné.';$('resultText').textContent=state.phase==='lobby'?`${state.players.length} / 6 mineurs · ${state.practice?'Tu peux ouvrir la mine.':desktop?'Partage l’invitation depuis le launcher. Les amis peuvent rejoindre ensuite.':'Partagez le code. Ouverture à partir de 3 joueurs ; les amis peuvent rejoindre ensuite.'}`:`${state.bank} / ${state.target} crédits sécurisés. ${state.host===session.id?'Vous pouvez relancer une expédition.':'Le chef peut relancer une expédition.'}`;}
  $('teamList').replaceChildren(...state.players.map(p=>{const li=document.createElement('span');li.style.color=p.color;li.textContent=`● ${p.name}${p.id===session.id?' (vous)':''}`;return li;}));
 }
-const canUseQuickbar=()=>connected&&state?.mode==='free'&&state.phase==='running'&&state.players.find(p=>p.id===session?.id)?.alive&&!state.players.find(p=>p.id===session?.id)?.vehicleId&&!baseUI.opened&&!colonyUI.opened;
+const canUseQuickbar=()=>!gameMenu.opened&&connected&&state?.mode==='free'&&state.phase==='running'&&state.players.find(p=>p.id===session?.id)?.alive&&!state.players.find(p=>p.id===session?.id)?.vehicleId&&!baseUI.opened&&!colonyUI.opened;
 let placementPointer=null;
 function updatePointer(e){const rect=canvas.getBoundingClientRect();placementPointer={u:(e.clientX-rect.left)/rect.width,v:(e.clientY-rect.top)/rect.height};}
 canvas.addEventListener('pointermove',updatePointer);
@@ -149,7 +153,7 @@ addEventListener('keydown',e=>{
  if(e.code==='KeyE'&&!e.repeat&&!baseUI.opened){const me=state?.players.find(p=>p.id===session.id);if(me?.alive&&(me.vehicleId||!colonyUI.opened)&&colonyUI.nearMachine()){e.preventDefault();e.stopImmediatePropagation();}}
 });
 function sendInput(){if(connected&&socket?.readyState===WebSocket.OPEN&&(socket.bufferedAmount||0)<65536){const sequence=++inputSequence;netcode.recordInput(sequence,keys,performance.now());try{socket.send(JSON.stringify({type:'input',sequence,input:keys}));}catch{socket.close();}}}
-function refreshKeys(){keys={};for(const code of heldCodes)keys[keymap[code]]=true;if(state?.mode==='free'&&colonyUI.selected!=='pick')keys.mine=false;sendInput();}
+function refreshKeys(){keys={};if(gameMenu.opened){sendInput();return;}for(const code of heldCodes)keys[keymap[code]]=true;if(state?.mode==='free'&&colonyUI.selected!=='pick')keys.mine=false;sendInput();}
 addEventListener('keydown',e=>{if(e.defaultPrevented)return;if(session&&e.code==='Escape'&&baseUI.opened){e.preventDefault();baseUI.close();return;}if(session&&e.code==='KeyB'&&!['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)){e.preventDefault();if(!e.repeat){baseUI.opened?baseUI.close():baseUI.open();}return;}if(baseUI.opened||colonyUI.opened)return;if(session&&e.code==='KeyX'&&!['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)){e.preventDefault();if(!e.repeat)baseUI.dismantle();return;}if(session&&!(e.code==='KeyR'&&colonyUI.selected==='wall')&&['KeyF','KeyR','KeyG'].includes(e.code)&&!['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)){e.preventDefault();if(!e.repeat)colonyUI.selectItem({KeyF:'lamp',KeyR:'air',KeyG:'drill'}[e.code]);return;}if(session&&e.code==='KeyE'&&!e.repeat&&state?.mode==='free'){const me=state.players.find(p=>p.id===session.id);if(me?.alive&&Math.hypot(me.x-17.5,me.y-3.5)<2.6){e.preventDefault();command('escape').then(()=>baseUI.open()).catch(error=>notice(error.message));return;}}if(['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)||!session)return;if(e.code==='Space'&&canUseQuickbar()&&isFieldItem(colonyUI.selected)){e.preventDefault();if(!e.repeat)colonyUI.placeSelected();return;}if(keymap[e.code]){e.preventDefault();if(!e.repeat&&!heldCodes.has(e.code)){heldCodes.add(e.code);refreshKeys();}}});
 addEventListener('keyup',e=>{if(keymap[e.code]){heldCodes.delete(e.code);refreshKeys();if(session)e.preventDefault();}});
 function releaseKeys(){heldCodes.clear();keys={};sendInput();}
@@ -173,5 +177,5 @@ function drawFrame(now){if(!renderer||!state||!session||$('session').hidden||doc
 }
 requestAnimationFrame(draw);
 updateSavedMines();
-const activeMine=mineSessions.active();if(desktop){$('openMineMenu').hidden=true;$('name').value=desktop.name;$('leave').textContent='Quitter la partie';resumeMine({...desktop,server:location.origin});}else if(activeMine?.server===base())resumeMine(activeMine);
+const activeMine=mineSessions.active();if(desktop){$('openMineMenu').hidden=true;$('name').value=desktop.name;$('leave').textContent='Retour au launcher';resumeMine({...desktop,server:location.origin});}else if(activeMine?.server===base())resumeMine(activeMine);
 
