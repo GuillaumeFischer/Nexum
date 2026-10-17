@@ -83,6 +83,9 @@ function button(label, action, kind = "secondary", disabled = false, symbol) {
 }
 function page(next) {
   view = next;
+  $("profileButton").setAttribute("aria-expanded", String(next === "settings"));
+  $("profileButton").title =
+    next === "settings" ? "Retour à l’accueil" : "Afficher mon profil";
   for (const [id, show] of [
     ["home", next === "home"],
     ["library", next === "home" || next === "library"],
@@ -140,8 +143,9 @@ async function hostGame(game) {
   }
   return chooseMine(game.id, "host");
 }
-function logo(game) {
-  const title = node("h2", undefined, "game-logo");
+function logo(game, className = "game-logo", tag = "h2") {
+  const title = node(tag, undefined, className);
+  if (game.id === "deep-miners") title.classList.add("deep-miners-logo");
   if (game.id === "deep-miners")
     title.append(
       node("span", "DEEP", "deep"),
@@ -240,9 +244,7 @@ function renderLibrary() {
     const card = node("article", undefined, "game-card"),
       art = node("div", undefined, "cover");
     if (game.id === "deep-miners") {
-      const mark = node("div", "DEEP", "cover-title");
-      mark.append(node("span", "MINERS"));
-      art.append(mark);
+      art.append(logo(game, "cover-title", "div"));
     }
     const details = node("div", undefined, "card-details"),
       meta = node("div", undefined, "card-meta");
@@ -465,7 +467,8 @@ document.querySelector(".brand").onclick = (e) => {
   e.preventDefault();
   page("home");
 };
-$("profileButton").onclick = () => page("settings");
+$("profileButton").onclick = () =>
+  page(view === "settings" ? "home" : "settings");
 $("refresh").onclick = () => call("refresh");
 $("search").addEventListener("input", () => {
   page("library");

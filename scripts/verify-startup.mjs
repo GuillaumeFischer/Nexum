@@ -5,18 +5,22 @@ import { once } from "node:events";
 
 await fs.mkdir("test-output", { recursive: true });
 const scratch = await fs.mkdtemp(path.resolve("test-output", "startup-"));
-const source = process.argv[2] === "--source";
+const args = process.argv.slice(2).filter((arg) => arg !== "--refinements"),
+  source = args[0] === "--source";
 const pkg = JSON.parse(await fs.readFile("package.json", "utf8"));
 const executable = path.resolve(
   source
     ? "node_modules/electron/dist/electron.exe"
-    : process.argv[2] || "release/win-unpacked/" + pkg.productName + ".exe",
+    : args[0] || "release/win-unpacked/" + pkg.productName + ".exe",
 );
 const report = path.join(scratch, "startup.json"),
   env = {
     ...process.env,
     ATELIER_DATA_DIR: scratch,
     ATELIER_STARTUP_CHECK: report,
+    ATELIER_STARTUP_SCENARIO: process.argv.includes("--refinements")
+      ? "refinements"
+      : "startup",
   };
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.NODE_OPTIONS;

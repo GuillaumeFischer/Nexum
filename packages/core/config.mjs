@@ -39,9 +39,13 @@ export async function profileAt(dataRoot) {
       throw Error(
         "Le profil est endommagé. Conserve le dossier de sauvegarde avant de le restaurer.",
       );
+    if (saved.name === "Mineur") {
+      saved.name = "Joueur";
+      await writeJSON(file, saved);
+    }
     return saved;
   }
-  const profile = { name: "Mineur", identity: randomBytes(32).toString("hex") };
+  const profile = { name: "Joueur", identity: randomBytes(32).toString("hex") };
   await writeJSON(file, profile);
   return profile;
 }
@@ -50,7 +54,14 @@ export function githubDistribution(d) {
     typeof d?.owner === "string" &&
     /^[a-zA-Z0-9-]{1,39}$/.test(d.owner) &&
     typeof d.repo === "string" &&
-    /^[a-zA-Z0-9_.-]{1,100}$/.test(d.repo)
+    /^[a-zA-Z0-9_.-]{1,100}$/.test(d.repo) &&
+    (d.previousRepos === undefined ||
+      (Array.isArray(d.previousRepos) &&
+        d.previousRepos.length <= 5 &&
+        d.previousRepos.every(
+          (repo) =>
+            typeof repo === "string" && /^[a-zA-Z0-9_.-]{1,100}$/.test(repo),
+        )))
   );
 }
 export function validateCatalog(value, distribution, { local = false } = {}) {
@@ -78,11 +89,15 @@ export function validateCatalog(value, distribution, { local = false } = {}) {
     ids.add(game.id);
     if (local && game.archive) continue;
     const url = new URL(game.url),
-      prefix = `/${distribution.owner}/${distribution.repo}/releases/download/`;
+      repositories = [distribution.repo, ...(distribution.previousRepos || [])];
     if (
       url.protocol !== "https:" ||
       url.hostname !== "github.com" ||
-      !url.pathname.startsWith(prefix) ||
+      !repositories.some((repo) =>
+        url.pathname.startsWith(
+          `/${distribution.owner}/${repo}/releases/download/`,
+        ),
+      ) ||
       url.username ||
       url.password ||
       url.search ||

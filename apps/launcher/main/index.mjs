@@ -52,7 +52,7 @@ const dataRoot = () => app.getPath("userData");
 function state() {
   return {
     version: app.getVersion(),
-    profileName: profile?.name || "Mineur",
+    profileName: profile?.name || "Joueur",
     games: catalog.games.map((g) => ({
       id: g.id,
       title: g.title,

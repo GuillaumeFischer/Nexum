@@ -13,7 +13,7 @@ for (const file of files) await fs.access("release/" + file);
 const notes = "release/notes.md";
 await fs.writeFile(
   notes,
-  `${pkg.productName} ${pkg.version}\n\nNouvelle identité NEXUM : interface sombre et bleue, logo, bannière Deep Miners, bibliothèque, recherche et téléchargements. Les profils, jeux installés et sauvegardes de l’ancienne version sont conservés.\n\nTélécharge **${pkg.productName}-Setup-${pkg.version}.exe** et installe-le par-dessus l’ancienne version. Les mises à jour suivantes restent disponibles dans le launcher.\n\nWindows x64. L’installeur ne dispose pas de signature éditeur.\n`,
+  `${pkg.productName} ${pkg.version}\n\nLe titre Deep Miners reprend la même typographie que sa carte dans la bibliothèque. Le bouton du profil ouvre les paramètres puis revient à l’accueil au second clic. Le pseudo par défaut devient Joueur ; les pseudos personnalisés et l’identité du personnage sont conservés.\n\nLe dépôt GitHub s’appelle désormais Nexum. Les anciens liens restent compatibles et les jeux, profils et sauvegardes sont préservés.\n\nTélécharge **${pkg.productName}-Setup-${pkg.version}.exe** et installe-le par-dessus l’ancienne version. Les mises à jour suivantes restent disponibles dans le launcher.\n\nWindows x64. L’installeur ne dispose pas de signature éditeur.\n`,
 );
 execFileSync(
   process.env.ATELIER_GH || "gh",

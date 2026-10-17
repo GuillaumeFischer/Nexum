@@ -315,6 +315,10 @@ button:hover:not(:disabled) {
   width: 13px;
   height: 13px;
   margin-left: 5px;
+  transition: transform 0.15s ease;
+}
+.profile-button[aria-expanded="true"] > .icon {
+  transform: rotate(180deg);
 }
 main {
   margin-left: 224px;
@@ -347,46 +351,24 @@ main {
   width: 65%;
 }
 .game-logo {
-  font-family: Impact, "Arial Black", sans-serif;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: -2px;
-  line-height: 0.86;
   margin: 0 0 23px;
   font-size: clamp(54px, 6.3vw, 98px);
-  filter: drop-shadow(0 4px 8px #000);
 }
-.game-logo .deep {
-  display: block;
-  width: max-content;
-  background: linear-gradient(
-    165deg,
-    #fff 4%,
-    #bfc6ce 37%,
-    #f0f2f4 46%,
-    #697582 48%,
-    #dce2e9 57%,
-    #929eab 100%
-  );
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0.7px #d8e0e8;
+.deep-miners-logo {
+  font-family: Impact, "Arial Black", sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.0222em;
+  line-height: 0.95;
+  color: #e2eaf3;
+  text-shadow: 0 0.074em 0.111em #000;
 }
-.game-logo .miners {
+.deep-miners-logo > span {
   display: block;
-  background: linear-gradient(
-    160deg,
-    #fff4b3 0%,
-    #ffb444 28%,
-    #ffdb8e 48%,
-    #a84d04 50%,
-    #ffad32 70%,
-    #ffd889
-  );
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0.7px #f8ba64;
-  text-indent: 35px;
+}
+.deep-miners-logo .miners {
+  color: #ffb54f;
+  margin-left: 0.5185em;
 }
 .hero-description {
   font-size: 12px;
@@ -588,17 +570,7 @@ main {
   left: 11px;
   bottom: 15px;
   z-index: 1;
-  font-family: Impact, "Arial Black", sans-serif;
   font-size: 27px;
-  letter-spacing: -0.6px;
-  line-height: 0.95;
-  color: #e2eaf3;
-  text-shadow: 0 2px 3px #000;
-}
-.cover-title span {
-  display: block;
-  color: #ffb54f;
-  margin-left: 14px;
 }
 .card-details {
   padding: 13px 11px;
