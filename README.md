@@ -17,7 +17,7 @@ Pas besoin de compte GitHub ni d’installer Node.js pour jouer. Le launcher pro
 
 ## Sauvegardes
 
-Dans **Mon profil → Ouvrir les sauvegardes**, tu trouveras les mines hébergées sur ce PC. Le dossier de données complet se trouve dans `%APPDATA%/atelier-jeux/` :
+Dans **Mon profil → Ouvrir les sauvegardes**, tu trouveras les mines hébergées sur ce PC. Le dossier de données complet se trouve dans `%APPDATA%/Atelier Jeux/` :
 
 - `profile.json` contient l’identité du joueur : conserve-le pour retrouver tes personnages.
 - `saves/deep-miners/rooms.json` contient les mines dont ce PC est l’hôte.
