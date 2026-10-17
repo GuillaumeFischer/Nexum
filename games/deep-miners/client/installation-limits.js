@@ -1,0 +1,6 @@
+export const INSTALLATION_LIMITS={rails:2048,structures:1024,plots:256,machines:192,wagons:48,drills:16};
+export const INSTALLATION_LABELS={rails:'Rails',structures:'Bâtiments et sols',plots:'Cultures',machines:'Machines et éclairages',wagons:'Wagons',drills:'Foreuses'};
+export function installationGroup(kind){return kind==='rail'?'rails':kind==='wagon'?'wagons':['soil','farm'].includes(kind)?'plots':['lamp','air','drill','furnace','generator','battery','conveyor','arm','sorter','decor'].includes(kind)?'machines':'structures';}
+export function countInstallations(items=[]){const counts={rails:0,structures:0,plots:0,machines:0,wagons:0,drills:0};for(const item of items){counts[installationGroup(item.kind)]++;if(item.kind==='drill')counts.drills++;}return counts;}
+export function installationCounts(world){return !(world.players instanceof Map)&&world.installationCounts?world.installationCounts:countInstallations(world.installations);}
+export function installationLimitReason(world,kind){const counts=installationCounts(world),group=installationGroup(kind);if(counts[group]>=INSTALLATION_LIMITS[group])return `${INSTALLATION_LABELS[group]} : limite atteinte (${INSTALLATION_LIMITS[group]}).`;if(kind==='drill'&&counts.drills>=INSTALLATION_LIMITS.drills)return `Foreuses : limite atteinte (${INSTALLATION_LIMITS.drills}).`;return '';}

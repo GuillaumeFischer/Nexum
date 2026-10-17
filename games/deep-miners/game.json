@@ -1,0 +1,1 @@
+{"id":"deep-miners","title":"Deep Miners","version":"0.13.0","engine":"node-web","adapter":"server/launcher.mjs","client":"client","multiplayer":true,"description":"Explore les galeries, cultive et construis une mine avec tes amis. Un joueur héberge, les autres rejoignent par invitation.","players":"1–6 joueurs"}

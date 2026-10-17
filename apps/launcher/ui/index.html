@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'"
+    />
+    <title>Atelier Jeux</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="mark">A<span>J</span></div>
+        <div>ATELIER<strong>JEUX</strong></div>
+      </div>
+      <div class="nav-label">TON ESPACE DE JEU</div>
+      <nav>
+        <button id="libraryNav" class="nav active">
+          ▦ <span>Bibliothèque</span></button
+        ><button id="joinNav" class="nav">
+          ↗ <span>Rejoindre des amis</span></button
+        ><button id="settingsNav" class="nav">
+          ⚙ <span>Mon profil</span>
+        </button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="avatar" id="initial">M</div>
+        <div>
+          <strong id="profileLabel">Mineur</strong
+          ><small>Prêt pour une partie</small>
+        </div>
+      </div>
+      <div class="version" id="version">Atelier Jeux</div>
+    </aside>
+    <main>
+      <header>
+        <div>
+          <div class="eyebrow">LE POINT DE RENDEZ-VOUS</div>
+          <h1 id="pageTitle">Ta bibliothèque.</h1>
+        </div>
+        <button id="refresh" class="subtle">↻ Actualiser</button>
+      </header>
+      <div id="notice" class="notice" role="status" hidden></div>
+      <div id="launcherUpdate" class="update" hidden></div>
+      <section id="library">
+        <div class="welcome">
+          <div>
+            <span class="pill">TES JEUX · TES AMIS · TON PC</span>
+            <h2>Un clic. Une nouvelle aventure.</h2>
+            <p>
+              Installe tes jeux ici. Pour une partie entre amis, l’un de vous
+              héberge et partage son invitation.
+            </p>
+          </div>
+          <div class="orbit"><span>✦</span><span>◈</span><span>✧</span></div>
+        </div>
+        <div class="section-heading">
+          <h3>Tous les jeux</h3>
+          <span id="gameCount"></span>
+        </div>
+        <div id="games" class="games"></div>
+      </section>
+      <section id="joinSection" class="panel" hidden>
+        <span class="pill">ON JOUE ENSEMBLE</span>
+        <h2>Retrouve tes amis.</h2>
+        <p>
+          L’hôte t’envoie une invitation depuis son launcher. Colle-la
+          ci-dessous ; le jeu sera installé si nécessaire.
+        </p>
+        <label for="invite">Code d’invitation</label
+        ><textarea
+          id="invite"
+          rows="3"
+          placeholder="AJ1-…"
+          spellcheck="false"
+        ></textarea
+        ><button id="join" class="primary">Rejoindre la partie ↗</button>
+        <p class="muted">
+          L’hôte doit garder sa partie ouverte. La mine et les sauvegardes
+          restent sur son PC.
+        </p>
+      </section>
+      <section id="settings" class="panel" hidden>
+        <span class="pill">TON IDENTITÉ</span>
+        <h2>Comment t’appelle-t-on ?</h2>
+        <p>
+          Ton profil conserve ton personnage lorsque tu retrouves une partie.
+        </p>
+        <label for="name">Ton pseudo</label>
+        <div class="inline">
+          <input id="name" maxlength="18" autocomplete="nickname" /><button
+            id="saveProfile"
+            class="primary"
+          >
+            Enregistrer
+          </button>
+        </div>
+        <div class="settings-links">
+          <button id="openSaves" class="secondary">
+            Ouvrir les sauvegardes</button
+          ><button id="github" class="secondary">Versions sur GitHub ↗</button>
+        </div>
+        <p class="muted">
+          Les jeux et leurs mises à jour viennent du dépôt GitHub public. Les
+          sauvegardes restent sur ton ordinateur.
+        </p>
+      </section>
+      <section id="session" class="session" hidden>
+        <div>
+          <span class="online-dot"></span
+          ><strong id="sessionTitle">Partie ouverte</strong>
+          <p id="sessionText"></p>
+        </div>
+        <div class="session-actions">
+          <button id="copyInvite" class="secondary">Copier l’invitation</button
+          ><button id="showGame" class="primary">Revenir au jeu ↗</button
+          ><button id="stop" class="subtle danger">Quitter la partie</button>
+        </div>
+      </section>
+      <footer>
+        À plusieurs, c’est encore mieux.<span
+          >Conçu pour vos soirées de jeu.</span
+        >
+      </footer>
+    </main>
+    <dialog id="hostDialog">
+      <form method="dialog">
+        <span class="pill">À TOI D’ACCUEILLIR</span>
+        <h2>Quelle mine ouvre-t-on ?</h2>
+        <p id="mineModeText">Tu héberges la partie et conserves la sauvegarde.</p>
+        <label for="mineChoice">Mine</label
+        ><select id="mineChoice">
+          <option value="">Créer une nouvelle mine</option>
+        </select>
+        <div class="dialog-actions">
+          <button value="cancel" class="secondary">Annuler</button
+          ><button id="confirmHost" value="host" class="primary">
+            Héberger la partie
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <script src="app.js"></script>
+  </body>
+</html>

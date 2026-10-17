@@ -1,0 +1,75 @@
+{
+  "name": "atelier-jeux",
+  "productName": "Atelier Jeux",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "apps/launcher/main/index.mjs",
+  "description": "Tes jeux, tes amis et tes parties hébergées depuis ton PC.",
+  "author": "Atelier Jeux",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/*.test.mjs",
+    "pack:games": "node scripts/pack-games.mjs",
+    "prepare:runtime": "node scripts/prepare-runtime.mjs",
+    "dist": "npm run prepare:runtime && electron-builder --win nsis --x64 --publish never",
+    "configure:github": "node scripts/configure-github.mjs"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.9",
+    "hyperdht": "6.34.1",
+    "yauzl": "3.4.0"
+  },
+  "devDependencies": {
+    "electron": "44.9.0",
+    "electron-builder": "26.15.3",
+    "yazl": "3.3.1"
+  },
+  "build": {
+    "appId": "fr.atelierjeux.launcher",
+    "productName": "Atelier Jeux",
+    "asar": false,
+    "npmRebuild": false,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "apps/**/*",
+      "packages/**/*",
+      "catalog/catalog.json",
+      "distribution.json",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "runtime",
+        "to": "runtime"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "Atelier-Jeux-Setup-${version}.${ext}",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "GuillaumeFischer",
+      "repo": "atelier-jeux"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GuillaumeFischer/atelier-jeux.git"
+  }
+}

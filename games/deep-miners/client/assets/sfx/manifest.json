@@ -1,0 +1,197 @@
+{
+  "sampleRate": 44100,
+  "channels": 1,
+  "format": "PCM 16-bit WAV",
+  "source": "Original procedural synthesis",
+  "sounds": [
+    {
+      "id": "pick-rock-1",
+      "file": "assets/sfx/pick-rock-1.wav",
+      "duration": 0.42,
+      "loop": false,
+      "gain": 0.75
+    },
+    {
+      "id": "pick-rock-2",
+      "file": "assets/sfx/pick-rock-2.wav",
+      "duration": 0.42,
+      "loop": false,
+      "gain": 0.75
+    },
+    {
+      "id": "pick-rock-3",
+      "file": "assets/sfx/pick-rock-3.wav",
+      "duration": 0.42,
+      "loop": false,
+      "gain": 0.75
+    },
+    {
+      "id": "pick-metal-1",
+      "file": "assets/sfx/pick-metal-1.wav",
+      "duration": 0.42,
+      "loop": false,
+      "gain": 0.7
+    },
+    {
+      "id": "pick-metal-2",
+      "file": "assets/sfx/pick-metal-2.wav",
+      "duration": 0.42,
+      "loop": false,
+      "gain": 0.7
+    },
+    {
+      "id": "pick-crystal-1",
+      "file": "assets/sfx/pick-crystal-1.wav",
+      "duration": 0.42,
+      "loop": false,
+      "gain": 0.66
+    },
+    {
+      "id": "pick-crystal-2",
+      "file": "assets/sfx/pick-crystal-2.wav",
+      "duration": 0.42,
+      "loop": false,
+      "gain": 0.66
+    },
+    {
+      "id": "rock-break",
+      "file": "assets/sfx/rock-break.wav",
+      "duration": 0.8,
+      "loop": false,
+      "gain": 0.8
+    },
+    {
+      "id": "ore-gold",
+      "file": "assets/sfx/ore-gold.wav",
+      "duration": 0.9,
+      "loop": false,
+      "gain": 0.7
+    },
+    {
+      "id": "ore-cyan",
+      "file": "assets/sfx/ore-cyan.wav",
+      "duration": 0.9,
+      "loop": false,
+      "gain": 0.64
+    },
+    {
+      "id": "ore-violet",
+      "file": "assets/sfx/ore-violet.wav",
+      "duration": 0.9,
+      "loop": false,
+      "gain": 0.64
+    },
+    {
+      "id": "deposit",
+      "file": "assets/sfx/deposit.wav",
+      "duration": 1.1,
+      "loop": false,
+      "gain": 0.72
+    },
+    {
+      "id": "refill",
+      "file": "assets/sfx/refill.wav",
+      "duration": 1.4,
+      "loop": false,
+      "gain": 0.52
+    },
+    {
+      "id": "gas-enter",
+      "file": "assets/sfx/gas-enter.wav",
+      "duration": 0.9,
+      "loop": false,
+      "gain": 0.42
+    },
+    {
+      "id": "gas-loop",
+      "file": "assets/sfx/gas-loop.wav",
+      "duration": 4,
+      "loop": true,
+      "gain": 0.18
+    },
+    {
+      "id": "air-low",
+      "file": "assets/sfx/air-low.wav",
+      "duration": 0.8,
+      "loop": false,
+      "gain": 0.55
+    },
+    {
+      "id": "breath-loop",
+      "file": "assets/sfx/breath-loop.wav",
+      "duration": 4,
+      "loop": true,
+      "gain": 0.22
+    },
+    {
+      "id": "lift",
+      "file": "assets/sfx/lift.wav",
+      "duration": 1.8,
+      "loop": false,
+      "gain": 0.52
+    },
+    {
+      "id": "rescue",
+      "file": "assets/sfx/rescue.wav",
+      "duration": 1.15,
+      "loop": false,
+      "gain": 0.7
+    },
+    {
+      "id": "down",
+      "file": "assets/sfx/down.wav",
+      "duration": 0.95,
+      "loop": false,
+      "gain": 0.5
+    },
+    {
+      "id": "start",
+      "file": "assets/sfx/start.wav",
+      "duration": 0.9,
+      "loop": false,
+      "gain": 0.6
+    },
+    {
+      "id": "quota",
+      "file": "assets/sfx/quota.wav",
+      "duration": 1.15,
+      "loop": false,
+      "gain": 0.62
+    },
+    {
+      "id": "win",
+      "file": "assets/sfx/win.wav",
+      "duration": 1.5,
+      "loop": false,
+      "gain": 0.66
+    },
+    {
+      "id": "lose",
+      "file": "assets/sfx/lose.wav",
+      "duration": 1.5,
+      "loop": false,
+      "gain": 0.5
+    },
+    {
+      "id": "radio",
+      "file": "assets/sfx/radio.wav",
+      "duration": 0.25,
+      "loop": false,
+      "gain": 0.32
+    },
+    {
+      "id": "cave-loop",
+      "file": "assets/sfx/cave-loop.wav",
+      "duration": 8,
+      "loop": true,
+      "gain": 0.12
+    },
+    {
+      "id": "ui",
+      "file": "assets/sfx/ui.wav",
+      "duration": 0.16,
+      "loop": false,
+      "gain": 0.25
+    }
+  ]
+}

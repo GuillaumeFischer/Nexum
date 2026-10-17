@@ -1,0 +1,13 @@
+node_modules/
+release/
+artifacts/
+runtime/
+.env*
+*.log
+userdata/
+backups/
+.vercel/
+server/data/
+games/*/server/data/
+catalog/local.json
+test-output/
