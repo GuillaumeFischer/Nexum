@@ -1,13 +1,13 @@
-# Atelier Jeux
+# NEXUM
 
-Un launcher Windows pour installer, mettre à jour et lancer les jeux de l’atelier. Deep Miners est le premier jeu disponible.
+Le launcher Windows pour installer, mettre à jour et lancer les jeux de l’atelier. Identité NEXUM, interface sombre et bleue, bibliothèque illustrée. Deep Miners est le premier jeu disponible.
 
 ## Jouer
 
-1. [Télécharge le launcher Windows](https://github.com/GuillaumeFischer/atelier-jeux/releases/latest), puis installe **Atelier-Jeux-Setup-1.0.2.exe**.
-2. Choisis ton pseudo dans **Mon profil** et installe **Deep Miners** dans la bibliothèque.
-3. Choisis **Jouer seul** ou **Héberger une partie**, puis retrouve une mine existante dans le sélecteur ou choisis **Créer une nouvelle mine**.
-4. Pour jouer entre amis, l’un de vous clique sur **Héberger une partie**, choisit une mine et copie son invitation. Les autres la collent dans **Rejoindre des amis**.
+1. [Télécharge le launcher Windows](https://github.com/GuillaumeFischer/atelier-jeux/releases/latest), puis installe **NEXUM-Setup-1.1.0.exe** par-dessus l’ancienne version si elle existe.
+2. Choisis ton pseudo dans **Paramètres** et installe **Deep Miners** depuis l’accueil ou **Téléchargements**.
+3. Choisis **Jouer** ou **Héberger**, puis retrouve une mine existante dans le sélecteur ou choisis **Créer une nouvelle mine**.
+4. L’hôte copie l’invitation de la partie. Les amis la collent dans **Multijoueur**. La recherche filtre la bibliothèque ; les cartes « Projet à venir » sont des aperçus sans jeu installable.
 
 Tu peux descendre seul dans une partie hébergée, puis accueillir tes amis. Jusqu’à six joueurs peuvent se retrouver dans une mine. Il faut la même version du jeu chez tous les joueurs.
 
@@ -17,7 +17,7 @@ Pas besoin de compte GitHub ni d’installer Node.js pour jouer. Le launcher pro
 
 ## Sauvegardes
 
-Dans **Mon profil → Ouvrir les sauvegardes**, tu trouveras les mines hébergées sur ce PC. Le dossier de données complet se trouve dans `%APPDATA%/Atelier Jeux/` :
+Dans **Paramètres → Ouvrir les sauvegardes**, tu trouveras les mines hébergées sur ce PC. NEXUM conserve le dossier historique `%APPDATA%/Atelier Jeux/` pour préserver les profils, installations et sauvegardes lors du changement de nom :
 
 - `profile.json` contient l’identité du joueur : conserve-le pour retrouver tes personnages.
 - `saves/deep-miners/rooms.json` contient les mines dont ce PC est l’hôte.

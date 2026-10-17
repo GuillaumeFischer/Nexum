@@ -9,6 +9,7 @@ import {
 } from "electron";
 import updater from "electron-updater";
 import fs from "node:fs/promises";
+import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { fork } from "node:child_process";
@@ -24,8 +25,13 @@ import { GameInstaller } from "../../../packages/core/installer.mjs";
 import { decodeInvite } from "../../../packages/network/invitation.mjs";
 const root = fileURLToPath(new URL("../../../", import.meta.url)),
   ui = path.join(root, "apps/launcher/ui/index.html");
-if (process.env.ATELIER_DATA_DIR)
-  app.setPath("userData", path.resolve(process.env.ATELIER_DATA_DIR));
+// Preserve profiles, game installations and saves across the NEXUM rebrand.
+const userDataPath = path.resolve(
+  process.env.ATELIER_DATA_DIR ||
+    path.join(app.getPath("appData"), "Atelier Jeux"),
+);
+mkdirSync(userDataPath, { recursive: true });
+app.setPath("userData", userDataPath);
 let window,
   gameWindow,
   worker,
@@ -54,6 +60,7 @@ function state() {
       players: g.players,
       version: g.version,
       multiplayer: g.multiplayer,
+      size: g.size,
       installedVersion: installed[g.id]?.version || null,
     })),
     active,
@@ -242,7 +249,7 @@ async function launch(method, args) {
       height: 960,
       minWidth: 960,
       minHeight: 640,
-      title: catalog.games.find((g) => g.id === id)?.title || "Atelier Jeux",
+      title: catalog.games.find((g) => g.id === id)?.title || "NEXUM",
       autoHideMenuBar: true,
       backgroundColor: "#071016",
       webPreferences: {
@@ -328,134 +335,172 @@ if (!app.requestSingleInstanceLock()) {
     window?.focus();
   });
   // Let the entry module finish loading before waiting for Electron's ready event.
-  void app.whenReady().then(async () => {
-  Menu.setApplicationMenu(null);
-  await fs.mkdir(dataRoot(), { recursive: true });
-  profile = await profileAt(dataRoot());
-  distribution = await readJSON(path.join(root, "distribution.json"));
-  installer = new GameInstaller(path.join(dataRoot(), "games"), {
-    onProgress: (p) => {
-      operation = p;
-      emit();
-    },
-  });
-  window = new BrowserWindow({
-    width: 1180,
-    height: 820,
-    minWidth: 980,
-    minHeight: 680,
-    title: "Atelier Jeux",
-    backgroundColor: "#0c1119",
-    webPreferences: {
-      preload: path.join(root, "apps/launcher/main/preload.cjs"),
-      nodeIntegration: false,
-      contextIsolation: true,
-      sandbox: true,
-    },
-  });
-  window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
-  window.webContents.on("will-navigate", (e) => e.preventDefault());
-  ipcMain.handle("atelier:call", async (event, method, args = {}) => {
-    if (
-      event.sender !== window.webContents ||
-      event.senderFrame.url !== pathToFileURL(ui).href
-    )
-      throw Error("Accès refusé.");
-    try {
-      if (method === "state") return state();
-      if (method === "refresh") return await loadCatalog();
-      if (method === "profile") {
+  void app
+    .whenReady()
+    .then(async () => {
+      Menu.setApplicationMenu(null);
+      await fs.mkdir(dataRoot(), { recursive: true });
+      profile = await profileAt(dataRoot());
+      distribution = await readJSON(path.join(root, "distribution.json"));
+      installer = new GameInstaller(path.join(dataRoot(), "games"), {
+        onProgress: (p) => {
+          operation = p;
+          emit();
+        },
+      });
+      window = new BrowserWindow({
+        width: 1440,
+        height: 920,
+        minWidth: 980,
+        minHeight: 680,
+        title: "NEXUM",
+        titleBarStyle: "hidden",
+        titleBarOverlay: {
+          color: "#080f17",
+          symbolColor: "#c4d1e1",
+          height: 74,
+        },
+        icon: path.join(root, "apps/launcher/assets/nexum-icon.png"),
+        backgroundColor: "#080f17",
+        webPreferences: {
+          preload: path.join(root, "apps/launcher/main/preload.cjs"),
+          nodeIntegration: false,
+          contextIsolation: true,
+          sandbox: true,
+        },
+      });
+      window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+      window.webContents.on("will-navigate", (e) => e.preventDefault());
+      ipcMain.handle("atelier:call", async (event, method, args = {}) => {
         if (
-          typeof args.name !== "string" ||
-          !args.name.trim() ||
-          args.name.trim().length > 18
+          event.sender !== window.webContents ||
+          event.senderFrame.url !== pathToFileURL(ui).href
         )
-          throw Error("Choisis un pseudo de 1 à 18 caractères.");
-        profile.name = args.name.trim();
-        await writeJSON(path.join(dataRoot(), "profile.json"), profile);
-        emit();
-        return state();
-      }
-      if (method === "install") return await install(args.id);
-      if (["host", "solo", "join"].includes(method)) {
-        if (sessionStarting || operation) throw Error('Une partie ou un téléchargement est déjà en préparation.');
-        sessionStarting = true;
-        try { return await launch(method, args); }
-        finally { sessionStarting = false; }
-      }
-      if (method === "mines") {
-        if (active) return [];
-        return await workerRequest("mines", {
-          gameRoot: await installer.gameRoot(args.id),
-          saveRoot: path.join(dataRoot(), "saves"),
+          throw Error("Accès refusé.");
+        try {
+          if (method === "state") return state();
+          if (method === "refresh") return await loadCatalog();
+          if (method === "profile") {
+            if (
+              typeof args.name !== "string" ||
+              !args.name.trim() ||
+              args.name.trim().length > 18
+            )
+              throw Error("Choisis un pseudo de 1 à 18 caractères.");
+            profile.name = args.name.trim();
+            await writeJSON(path.join(dataRoot(), "profile.json"), profile);
+            emit();
+            return state();
+          }
+          if (method === "install") return await install(args.id);
+          if (["host", "solo", "join"].includes(method)) {
+            if (sessionStarting || operation)
+              throw Error(
+                "Une partie ou un téléchargement est déjà en préparation.",
+              );
+            sessionStarting = true;
+            try {
+              return await launch(method, args);
+            } finally {
+              sessionStarting = false;
+            }
+          }
+          if (method === "mines") {
+            if (active) return [];
+            return await workerRequest("mines", {
+              gameRoot: await installer.gameRoot(args.id),
+              saveRoot: path.join(dataRoot(), "saves"),
+            });
+          }
+          if (method === "stop") {
+            await stopSession();
+            return state();
+          }
+          if (method === "copy") {
+            if (active?.invite) clipboard.writeText(active.invite);
+            return true;
+          }
+          if (method === "focus") {
+            gameWindow?.show();
+            gameWindow?.focus();
+            return true;
+          }
+          if (method === "github") {
+            if (githubDistribution(distribution))
+              await shell.openExternal(
+                `https://github.com/${distribution.owner}/${distribution.repo}/releases/latest`,
+              );
+            return true;
+          }
+          if (method === "saves") {
+            await fs.mkdir(path.join(dataRoot(), "saves"), { recursive: true });
+            await shell.openPath(path.join(dataRoot(), "saves"));
+            return true;
+          }
+          if (method === "update-download") {
+            if (active)
+              throw Error(
+                "Quitte la partie avant de mettre le launcher à jour.",
+              );
+            await autoUpdater.downloadUpdate();
+            return state();
+          }
+          if (method === "update-install") {
+            await stopSession();
+            quitting = true;
+            autoUpdater.quitAndInstall();
+            return true;
+          }
+          throw Error("Action inconnue.");
+        } catch (e) {
+          notice = e.message;
+          emit();
+          throw e;
+        }
+      });
+      await window.loadFile(ui);
+      await loadCatalog();
+      if (!process.env.ATELIER_STARTUP_CHECK) void checkUpdate();
+      window.on("closed", () => {
+        window = null;
+        app.quit();
+      });
+      app.on("before-quit", (event) => {
+        if (worker && !quitting) {
+          event.preventDefault();
+          quitting = true;
+          void stopSession().finally(() => app.quit());
+        }
+      });
+      if (process.env.ATELIER_STARTUP_CHECK) {
+        const { verifyStartup } = await import("./startup-check.mjs");
+        await verifyStartup({
+          app,
+          window,
+          state: state(),
+          report: process.env.ATELIER_STARTUP_CHECK,
         });
       }
-      if (method === "stop") {
-        await stopSession();
-        return state();
-      }
-      if (method === "copy") {
-        if (active?.invite) clipboard.writeText(active.invite);
-        return true;
-      }
-      if (method === "focus") {
-        gameWindow?.show();
-        gameWindow?.focus();
-        return true;
-      }
-      if (method === "github") {
-        if (githubDistribution(distribution))
-          await shell.openExternal(
-            `https://github.com/${distribution.owner}/${distribution.repo}/releases/latest`,
-          );
-        return true;
-      }
-      if (method === "saves") {
-        await shell.openPath(path.join(dataRoot(), "saves"));
-        return true;
-      }
-      if (method === "update-download") {
-        if (active)
-          throw Error("Quitte la partie avant de mettre le launcher à jour.");
-        await autoUpdater.downloadUpdate();
-        return state();
-      }
-      if (method === "update-install") {
-        await stopSession();
-        quitting = true;
-        autoUpdater.quitAndInstall();
-        return true;
-      }
-      throw Error("Action inconnue.");
-    } catch (e) {
-      notice = e.message;
-      emit();
-      throw e;
-    }
-  });
-  await window.loadFile(ui);
-  await loadCatalog();
-  if (!process.env.ATELIER_STARTUP_CHECK) void checkUpdate();
-  window.on("closed", () => {
-    window = null;
-    app.quit();
-  });
-  app.on("before-quit", (event) => {
-    if (worker && !quitting) {
-      event.preventDefault();
-      quitting = true;
-      void stopSession().finally(() => app.quit());
-    }
-  });
-  if (process.env.ATELIER_STARTUP_CHECK) {
-    const { verifyStartup } = await import('./startup-check.mjs');
-    await verifyStartup({app, window, state:state(), report:process.env.ATELIER_STARTUP_CHECK});
-  }
-  }).catch(async error => {
-    const log = path.join(dataRoot(),'startup-error.log');
-    await fs.mkdir(dataRoot(),{recursive:true}).catch(()=>{});
-    await fs.appendFile(log,new Date().toISOString()+' '+(error.stack||error.message)+'\n').catch(()=>{});
-    dialog.showErrorBox('Atelier Jeux — démarrage impossible','Le launcher n’a pas pu démarrer. Tes sauvegardes sont conservées.\n\n'+error.message+'\n\nDiagnostic : '+log);
-    app.exit(1);
-  });
+    })
+    .catch(async (error) => {
+      const log = path.join(dataRoot(), "startup-error.log");
+      await fs.mkdir(dataRoot(), { recursive: true }).catch(() => {});
+      await fs
+        .appendFile(
+          log,
+          new Date().toISOString() +
+            " " +
+            (error.stack || error.message) +
+            "\n",
+        )
+        .catch(() => {});
+      dialog.showErrorBox(
+        "NEXUM — démarrage impossible",
+        "Le launcher n’a pas pu démarrer. Tes sauvegardes sont conservées.\n\n" +
+          error.message +
+          "\n\nDiagnostic : " +
+          log,
+      );
+      app.exit(1);
+    });
 }

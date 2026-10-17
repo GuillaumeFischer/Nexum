@@ -7,131 +7,204 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'"
     />
-    <title>Atelier Jeux</title>
+    <title>NEXUM</title>
+    <link rel="icon" href="../assets/nexum-mark.svg" />
+    <link rel="stylesheet" href="fonts.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <aside class="sidebar">
-      <div class="brand">
-        <div class="mark">A<span>J</span></div>
-        <div>ATELIER<strong>JEUX</strong></div>
-      </div>
-      <div class="nav-label">TON ESPACE DE JEU</div>
-      <nav>
-        <button id="libraryNav" class="nav active">
-          ▦ <span>Bibliothèque</span></button
-        ><button id="joinNav" class="nav">
-          ↗ <span>Rejoindre des amis</span></button
-        ><button id="settingsNav" class="nav">
-          ⚙ <span>Mon profil</span>
+      <a class="brand" href="#home" aria-label="NEXUM — Accueil"
+        ><img
+          src="../assets/nexum-mark.svg"
+          alt=""
+          width="40"
+          height="40"
+        /><span>NEXUM</span></a
+      >
+      <nav aria-label="Navigation principale">
+        <button id="homeNav" class="nav active" data-page="home">
+          <span data-icon="home"></span>Accueil
+        </button>
+        <button id="libraryNav" class="nav" data-page="library">
+          <span data-icon="library"></span>Bibliothèque
+        </button>
+        <button id="joinNav" class="nav" data-page="join">
+          <span data-icon="people"></span>Multijoueur
+        </button>
+        <button id="downloadsNav" class="nav" data-page="downloads">
+          <span data-icon="download"></span>Téléchargements<span
+            id="downloadBadge"
+            class="badge"
+            hidden
+            >1</span
+          >
+        </button>
+        <button id="settingsNav" class="nav" data-page="settings">
+          <span data-icon="settings"></span>Paramètres
         </button>
       </nav>
-      <div class="sidebar-bottom">
-        <div class="avatar" id="initial">M</div>
-        <div>
-          <strong id="profileLabel">Mineur</strong
-          ><small>Prêt pour une partie</small>
-        </div>
+      <div class="sidebar-heading">MES JEUX</div>
+      <div id="sidebarGames" class="sidebar-games"></div>
+      <div class="sidebar-footer">
+        <span class="connection-dot"></span>Votre prochaine aventure.<small
+          id="version"
+          >NEXUM</small
+        >
       </div>
-      <div class="version" id="version">Atelier Jeux</div>
     </aside>
+    <header class="topbar">
+      <label class="search"
+        ><span data-icon="search"></span
+        ><input
+          id="search"
+          type="search"
+          placeholder="Rechercher un jeu…"
+          aria-label="Rechercher un jeu"
+      /></label>
+      <div class="top-actions">
+        <button
+          id="refresh"
+          class="icon-button"
+          title="Actualiser le catalogue"
+          aria-label="Actualiser le catalogue"
+        >
+          <span data-icon="refresh"></span>
+        </button>
+        <div class="top-divider"></div>
+        <button id="profileButton" class="profile-button">
+          <span class="avatar" id="initial">M</span
+          ><span
+            ><strong id="profileLabel">Mineur</strong
+            ><small><i></i>Prêt à jouer</small></span
+          ><span data-icon="chevron"></span>
+        </button>
+      </div>
+    </header>
     <main>
-      <header>
-        <div>
-          <div class="eyebrow">LE POINT DE RENDEZ-VOUS</div>
-          <h1 id="pageTitle">Ta bibliothèque.</h1>
-        </div>
-        <button id="refresh" class="subtle">↻ Actualiser</button>
-      </header>
+      <h1 id="pageTitle" class="sr-only">Accueil NEXUM</h1>
       <div id="notice" class="notice" role="status" hidden></div>
       <div id="launcherUpdate" class="update" hidden></div>
-      <section id="library">
-        <div class="welcome">
-          <div>
-            <span class="pill">TES JEUX · TES AMIS · TON PC</span>
-            <h2>Un clic. Une nouvelle aventure.</h2>
-            <p>
-              Installe tes jeux ici. Pour une partie entre amis, l’un de vous
-              héberge et partage son invitation.
-            </p>
-          </div>
-          <div class="orbit"><span>✦</span><span>◈</span><span>✧</span></div>
-        </div>
+      <section id="home"><div id="hero" class="hero"></div></section>
+      <section id="library" class="library-section">
         <div class="section-heading">
-          <h3>Tous les jeux</h3>
-          <span id="gameCount"></span>
+          <h2>Bibliothèque <span id="gameCount"></span></h2>
+          <label class="sort-label"
+            >Trier par :
+            <select id="sort" aria-label="Trier les jeux">
+              <option value="recent">Récents</option>
+              <option value="name">Nom A–Z</option>
+            </select></label
+          >
         </div>
         <div id="games" class="games"></div>
-      </section>
-      <section id="joinSection" class="panel" hidden>
-        <span class="pill">ON JOUE ENSEMBLE</span>
-        <h2>Retrouve tes amis.</h2>
-        <p>
-          L’hôte t’envoie une invitation depuis son launcher. Colle-la
-          ci-dessous ; le jeu sera installé si nécessaire.
-        </p>
-        <label for="invite">Code d’invitation</label
-        ><textarea
-          id="invite"
-          rows="3"
-          placeholder="AJ1-…"
-          spellcheck="false"
-        ></textarea
-        ><button id="join" class="primary">Rejoindre la partie ↗</button>
-        <p class="muted">
-          L’hôte doit garder sa partie ouverte. La mine et les sauvegardes
-          restent sur son PC.
+        <p id="emptySearch" class="empty" hidden>
+          Aucun jeu ne correspond à votre recherche.
         </p>
       </section>
-      <section id="settings" class="panel" hidden>
-        <span class="pill">TON IDENTITÉ</span>
-        <h2>Comment t’appelle-t-on ?</h2>
-        <p>
-          Ton profil conserve ton personnage lorsque tu retrouves une partie.
-        </p>
-        <label for="name">Ton pseudo</label>
-        <div class="inline">
-          <input id="name" maxlength="18" autocomplete="nickname" /><button
-            id="saveProfile"
-            class="primary"
-          >
-            Enregistrer
-          </button>
+      <section id="joinSection" class="page-panel" hidden>
+        <div class="page-heading">
+          <span class="eyebrow">MULTIJOUEUR</span>
+          <h2>La même aventure.<br /><span>À plusieurs.</span></h2>
+          <p>
+            Un joueur héberge la partie sur son PC. Les autres le retrouvent
+            avec une invitation.
+          </p>
         </div>
-        <div class="settings-links">
-          <button id="openSaves" class="secondary">
-            Ouvrir les sauvegardes</button
-          ><button id="github" class="secondary">Versions sur GitHub ↗</button>
+        <div class="multiplayer-grid">
+          <div class="panel">
+            <span class="panel-icon" data-icon="link"></span>
+            <h3>Rejoindre des amis</h3>
+            <p>
+              Collez l’invitation partagée par l’hôte. NEXUM installe le jeu si
+              nécessaire.
+            </p>
+            <label for="invite">Invitation de la partie</label
+            ><textarea
+              id="invite"
+              rows="3"
+              placeholder="AJ1-…"
+              spellcheck="false"
+            ></textarea
+            ><button id="join" class="primary">
+              Rejoindre la partie <span data-icon="arrow"></span></button
+            ><small>L’hôte doit garder sa partie ouverte.</small>
+          </div>
+          <div class="panel host-panel">
+            <span class="panel-icon" data-icon="people"></span>
+            <h3>À vous d’héberger</h3>
+            <p>
+              Créez une nouvelle mine ou reprenez une sauvegarde, puis partagez
+              l’invitation avec vos amis.
+            </p>
+            <div id="hostGames"></div>
+            <div class="info-line">
+              <span data-icon="save"></span>La sauvegarde reste sur votre PC.
+            </div>
+          </div>
         </div>
-        <p class="muted">
-          Les jeux et leurs mises à jour viennent du dépôt GitHub public. Les
-          sauvegardes restent sur ton ordinateur.
-        </p>
+      </section>
+      <section id="downloads" class="page-panel" hidden>
+        <div class="page-heading">
+          <span class="eyebrow">VOS JEUX, TOUJOURS PRÊTS</span>
+          <h2>Téléchargements</h2>
+          <p>Installez vos jeux et retrouvez les mises à jour disponibles.</p>
+        </div>
+        <div id="downloadList"></div>
+      </section>
+      <section id="settings" class="page-panel" hidden>
+        <div class="page-heading">
+          <span class="eyebrow">VOTRE ESPACE</span>
+          <h2>Paramètres</h2>
+          <p>
+            Votre profil vous permet de retrouver le même personnage dans les
+            mines de vos amis.
+          </p>
+        </div>
+        <div class="panel settings-panel">
+          <h3>Mon profil</h3>
+          <label for="name">Votre pseudo</label>
+          <div class="inline">
+            <input id="name" maxlength="18" autocomplete="nickname" /><button
+              id="saveProfile"
+              class="primary"
+            >
+              Enregistrer
+            </button>
+          </div>
+          <div class="settings-links">
+            <button id="openSaves" class="secondary">
+              <span data-icon="folder"></span>Ouvrir les sauvegardes</button
+            ><button id="github" class="secondary">
+              <span data-icon="external"></span>Versions sur GitHub
+            </button>
+          </div>
+          <p class="muted">
+            Conservez votre profil et vos sauvegardes ensemble si vous changez
+            de PC. Les mises à jour des jeux les préservent.
+          </p>
+        </div>
       </section>
       <section id="session" class="session" hidden>
         <div>
-          <span class="online-dot"></span
+          <span class="connection-dot"></span
           ><strong id="sessionTitle">Partie ouverte</strong>
           <p id="sessionText"></p>
         </div>
         <div class="session-actions">
           <button id="copyInvite" class="secondary">Copier l’invitation</button
-          ><button id="showGame" class="primary">Revenir au jeu ↗</button
-          ><button id="stop" class="subtle danger">Quitter la partie</button>
+          ><button id="showGame" class="primary">Revenir au jeu</button
+          ><button id="stop" class="danger">Quitter la partie</button>
         </div>
       </section>
-      <footer>
-        À plusieurs, c’est encore mieux.<span
-          >Conçu pour vos soirées de jeu.</span
-        >
-      </footer>
+      <footer><span>NEXUM</span>Univers. Jeux. Communauté.</footer>
     </main>
     <dialog id="hostDialog">
       <form method="dialog">
-        <span class="pill">À TOI D’ACCUEILLIR</span>
+        <span class="eyebrow">DEEP MINERS</span>
         <h2>Quelle mine ouvre-t-on ?</h2>
-        <p id="mineModeText">Tu héberges la partie et conserves la sauvegarde.</p>
-        <label for="mineChoice">Mine</label
+        <p id="mineModeText"></p>
+        <label for="mineChoice">Votre mine</label
         ><select id="mineChoice">
           <option value="">Créer une nouvelle mine</option>
         </select>

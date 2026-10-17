@@ -1,19 +1,24 @@
 :root {
   color-scheme: dark;
-  font-family:
-    Segoe UI,
-    Arial,
-    sans-serif;
-  color: #eef2f7;
-  background: #0c1119;
-  font-size: 14px;
+  --bg: #080f17;
+  --panel: #101a27;
+  --line: #203044;
+  --text: #e5e7eb;
+  --muted: #8c9db3;
+  --blue: #2563eb;
+  --cyan: #06b6da;
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
 }
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
-  display: flex;
+  background:
+    radial-gradient(ellipse at 90% 100%, #05225038, transparent 55%), #080f17;
   min-height: 100vh;
 }
 button,
@@ -25,441 +30,930 @@ textarea {
 button {
   cursor: pointer;
   border: 0;
-  border-radius: 8px;
-  font-weight: 650;
-  transition: background 0.15s;
+  color: inherit;
 }
 button:disabled {
   opacity: 0.4;
-  cursor: wait;
+  cursor: not-allowed;
 }
 button:focus-visible,
+a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid #8ec9b5;
+  outline: 2px solid #06b6da;
   outline-offset: 3px;
 }
-.sidebar {
-  width: 226px;
+button {
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    transform 0.15s;
+}
+button:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+.icon {
+  width: 21px;
+  height: 21px;
   flex: none;
-  background: #101721;
-  border-right: 1px solid #202c3a;
-  padding: 30px 20px;
-  display: flex;
-  flex-direction: column;
+  vertical-align: middle;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sidebar {
   position: fixed;
   inset: 0 auto 0 0;
+  width: 224px;
+  background: linear-gradient(160deg, #080f18, #07101a);
+  border-right: 1px solid #1c2a3a;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  padding: 0 14px 20px;
 }
 .brand {
+  height: 82px;
+  flex: none;
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 11px;
-  letter-spacing: 3px;
-  color: #99a9b9;
+  padding-left: 10px;
+  text-decoration: none;
+  color: white;
+  -webkit-app-region: drag;
 }
-.brand strong {
-  display: block;
-  font-size: 22px;
+.brand img {
+  filter: drop-shadow(0 0 9px #007bff42);
+}
+.brand span {
+  font-family: Outfit, Inter, sans-serif;
   letter-spacing: 5px;
-  color: #edf4f4;
+  font-size: 19px;
+  font-weight: 600;
 }
-.mark {
-  height: 46px;
-  width: 46px;
-  border: 1px solid #81bfa9;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: 800;
-  color: #96d4bf;
-  letter-spacing: -7px;
-  padding-right: 7px;
-  background: #1d3a36;
-}
-.mark span {
-  color: #e2be76;
-}
-.nav-label {
-  font-size: 9px;
-  letter-spacing: 1.8px;
-  color: #6e8398;
-  margin: 50px 12px 15px;
+.sidebar nav {
+  display: grid;
+  gap: 6px;
+  margin: 17px 0 38px;
 }
 .nav {
-  width: 100%;
-  padding: 14px 13px;
+  display: flex;
+  align-items: center;
   text-align: left;
+  gap: 14px;
+  position: relative;
   background: transparent;
-  color: #8e9fb1;
+  border-radius: 8px;
+  padding: 13px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  min-height: 48px;
+}
+.nav .icon {
+  height: 24px;
+  width: 24px;
+  color: #cbd8e8;
+}
+.nav.active {
+  background: linear-gradient(100deg, #075bcd61, #152236);
+  box-shadow: inset 2px 0 #0db6ff;
+  color: white;
+}
+.nav:hover {
+  background: #172534;
+}
+.nav.active .icon {
+  color: #f0f7ff;
+}
+.badge {
+  margin-left: auto;
+  border-radius: 9px;
+  min-width: 20px;
+  padding: 3px;
+  background: #087bfc;
+  font-size: 10px;
+  text-align: center;
+}
+.sidebar-heading {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.3px;
+  color: #bac9db;
+  padding: 0 11px;
+  margin-bottom: 12px;
+}
+.sidebar-games {
+  display: grid;
+  gap: 7px;
+}
+.sidebar-game {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  text-align: left;
+  padding: 7px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 7px;
+  font-size: 11px;
+  width: 100%;
+}
+.sidebar-game.active {
+  background: #14253b;
+  border-color: #213852;
+}
+.sidebar-game .mini-cover {
+  width: 43px;
+  height: 48px;
+  flex: none;
+  border-radius: 5px;
+  background-position: center;
+  background-size: cover;
+  border: 1px solid #34506a;
+}
+.sidebar-game.active .mini-cover {
+  border-color: #168cff;
+}
+.sidebar-game.coming {
+  color: #8092ac;
+  pointer-events: none;
+}
+.sidebar-game.coming .mini-cover {
+  opacity: 0.6;
+}
+.sidebar-footer {
+  margin-top: auto;
+  padding: 25px 10px 0;
+  color: #7e91aa;
+  font-size: 9px;
+  line-height: 1.8;
+}
+.sidebar-footer small {
+  display: block;
+  margin-top: 5px;
+  font-size: 9px;
+  color: #4d637f;
+}
+.connection-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00d9ac;
+  margin-right: 7px;
+  box-shadow: 0 0 9px #00d9ac32;
+}
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 224px;
+  height: 74px;
+  padding: 0 148px 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  z-index: 4;
+  background: #080f17ed;
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid #18283b;
+  -webkit-app-region: drag;
+}
+.search {
+  width: min(365px, 43%);
   display: flex;
   align-items: center;
   gap: 11px;
-  font-size: 18px;
-  margin: 5px 0;
+  border: 1px solid #1d3044;
+  border-radius: 18px;
+  background: #101b2b;
+  padding: 8px 13px;
+  -webkit-app-region: no-drag;
 }
-.nav span {
-  font-size: 13px;
+.search .icon {
+  width: 17px;
+  height: 17px;
+  color: #cbd9ec;
 }
-.nav:hover,
-.nav.active {
-  background: #1c2b35;
-  color: #a5dac8;
+.search input {
+  padding: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  width: 100%;
+  font-size: 11px;
+  line-height: 22px;
 }
-.nav.active {
-  box-shadow: inset 3px 0 #8bc8b3;
+.search input::placeholder {
+  color: #94a6bd;
 }
-.sidebar-bottom {
-  margin-top: auto;
-  padding-top: 30px;
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  -webkit-app-region: no-drag;
+}
+.icon-button {
+  border: 0;
+  background: transparent;
+  color: #acbbcf;
+  padding: 8px;
+  border-radius: 7px;
+}
+.top-divider {
+  height: 29px;
+  width: 1px;
+  background: #1d2a39;
+}
+.profile-button {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 12px;
+  background: transparent;
+  text-align: left;
+  padding: 0;
 }
 .avatar {
-  background: #3a3540;
-  color: #e5c38d;
-  width: 36px;
-  height: 36px;
+  height: 35px;
+  width: 35px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-weight: bold;
+  background: radial-gradient(circle at 25% 10%, #145892, #162d4c 65%);
+  border: 1px solid #137dcb;
+  color: #bde8ff;
+  font-weight: 600;
+  font-size: 14px;
 }
-.sidebar-bottom small {
+.profile-button strong {
   display: block;
-  font-size: 10px;
-  color: #71879a;
-  margin-top: 4px;
+  font-size: 11px;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.version {
-  font-size: 10px;
-  color: #53697e;
-  margin: 20px 0 0 47px;
+.profile-button small {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #00d9ac;
+  font-size: 9px;
+  margin-top: 3px;
+}
+.profile-button small i {
+  display: block;
+  height: 5px;
+  width: 5px;
+  background: currentColor;
+  border-radius: 50%;
+}
+.profile-button > .icon {
+  width: 13px;
+  height: 13px;
+  margin-left: 5px;
 }
 main {
-  margin-left: 226px;
-  width: calc(100% - 226px);
-  padding: 36px 38px 20px;
-  max-width: 1500px;
+  margin-left: 224px;
+  padding: 94px 24px 15px;
+  min-height: 100vh;
 }
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 27px;
-}
-.eyebrow {
-  font-size: 9px;
-  letter-spacing: 2.3px;
-  color: #8b9fae;
-}
-h1 {
-  font-size: 32px;
-  letter-spacing: -1px;
-  margin: 8px 0 0;
-}
-h2 {
-  font-size: 30px;
-  letter-spacing: -0.8px;
-  margin: 18px 0 10px;
-  line-height: 1.15;
-}
-h3 {
-  font-size: 16px;
-  margin: 0;
-}
-p {
-  line-height: 1.7;
-  color: #9cabb9;
-  font-size: 13px;
-}
-.subtle {
-  background: transparent;
-  border: 1px solid #2c3b4b;
-  color: #aebcca;
-  padding: 10px 14px;
-}
-.subtle:hover {
-  background: #1c2936;
-}
-.welcome {
+.hero {
+  min-height: 414px;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(120deg, #16312f, #172230 70%);
-  border: 1px solid #2a4446;
-  border-radius: 14px;
-  padding: 28px 32px;
-  display: flex;
-  justify-content: space-between;
-}
-.welcome > div:first-child {
-  max-width: 550px;
-}
-.welcome p {
-  max-width: 450px;
-  margin-bottom: 0;
-}
-.pill {
-  font-size: 9px;
-  letter-spacing: 1.7px;
-  color: #b7d5c9;
-}
-.orbit {
-  width: 140px;
-  height: 150px;
-  position: relative;
-  color: #b8a477;
-  font-size: 50px;
-  opacity: 0.8;
-}
-.orbit span:first-child {
-  position: absolute;
-  top: 25px;
-  left: 35px;
-}
-.orbit span:nth-child(2) {
-  position: absolute;
-  top: 75px;
-  left: 85px;
-  font-size: 26px;
-  color: #7fb49e;
-}
-.orbit span:nth-child(3) {
-  position: absolute;
-  top: 0;
-  left: 105px;
-  font-size: 24px;
-}
-.section-heading {
-  display: flex;
-  justify-content: space-between;
-  margin: 30px 0 15px;
-  align-items: center;
-}
-.section-heading > span {
-  color: #62788c;
-  font-size: 11px;
-}
-.games {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
-  gap: 20px;
-}
-.game-card {
-  background: #141f2a;
-  border: 1px solid #263442;
+  border: 1px solid #223b55;
   border-radius: 13px;
-  overflow: hidden;
-  max-width: 710px;
+  background: #06101b url("../assets/nexum-mine-hero.png") center center/cover;
+  display: flex;
+  align-items: flex-end;
+  padding: 35px 30px;
 }
-.game-art {
-  height: 225px;
-  background: #151d25;
-  position: relative;
-  overflow: hidden;
-}
-.game-art img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.82;
-}
-.game-art:after {
+.hero::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(transparent 30%, #141f2a);
+  background:
+    linear-gradient(90deg, #030a14b5 0%, #03091434 50%, #03091400 75%),
+    linear-gradient(0deg, #030911cc, transparent 60%);
 }
-.game-art .tag {
-  position: absolute;
+.hero-copy {
+  position: relative;
   z-index: 1;
-  left: 20px;
-  bottom: 15px;
-  font-size: 10px;
-  letter-spacing: 1.3px;
-  color: #f4cd8a;
+  max-width: 650px;
+  width: 65%;
 }
-.game-content {
-  padding: 0 23px 23px;
+.game-logo {
+  font-family: Impact, "Arial Black", sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -2px;
+  line-height: 0.86;
+  margin: 0 0 23px;
+  font-size: clamp(54px, 6.3vw, 98px);
+  filter: drop-shadow(0 4px 8px #000);
 }
-.game-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.game-logo .deep {
+  display: block;
+  width: max-content;
+  background: linear-gradient(
+    165deg,
+    #fff 4%,
+    #bfc6ce 37%,
+    #f0f2f4 46%,
+    #697582 48%,
+    #dce2e9 57%,
+    #929eab 100%
+  );
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.7px #d8e0e8;
 }
-.game-top h2 {
-  font-size: 25px;
-  margin: 8px 0;
+.game-logo .miners {
+  display: block;
+  background: linear-gradient(
+    160deg,
+    #fff4b3 0%,
+    #ffb444 28%,
+    #ffdb8e 48%,
+    #a84d04 50%,
+    #ffad32 70%,
+    #ffd889
+  );
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.7px #f8ba64;
+  text-indent: 35px;
 }
-.game-version {
-  font-size: 10px;
-  color: #6b8194;
-}
-.game-content p {
+.hero-description {
   font-size: 12px;
-  margin-top: 6px;
-  max-width: 540px;
+  color: #ecf1f6;
+  line-height: 1.65;
+  max-width: 490px;
+  text-shadow: 0 2px 5px #000;
+  margin: 0 0 13px;
 }
-.game-meta {
+.chips {
   display: flex;
-  gap: 15px;
-  margin: 15px 0;
-  color: #8ebcac;
-  font-size: 10px;
-}
-.game-actions {
-  display: flex;
-  gap: 9px;
   flex-wrap: wrap;
-  margin-top: 20px;
+  gap: 7px;
+  margin: 0 0 23px;
+}
+.chip {
+  font-size: 9px;
+  line-height: 1;
+  background: #111d2ad4;
+  border: 1px solid #2a3c51;
+  border-radius: 6px;
+  padding: 7px 9px;
+  color: #d7e2ef;
+}
+.hero-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.primary,
+.secondary,
+.danger {
+  border-radius: 7px;
+  min-height: 42px;
+  padding: 11px 17px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
 }
 .primary {
-  background: #87c5b0;
-  color: #0b2421;
-  padding: 12px 18px;
-}
-.primary:hover {
-  background: #a6dfcc;
+  background: linear-gradient(105deg, #0969ff, #008aff);
+  border: 1px solid #1e96ff;
+  color: white;
+  box-shadow: 0 3px 14px #0058f517;
 }
 .secondary {
-  padding: 11px 16px;
-  background: #253541;
-  color: #d4e0e9;
-  border: 1px solid #344859;
+  background: linear-gradient(150deg, #152031f0, #0b1522eb);
+  border: 1px solid #2b3f57;
 }
-.secondary:hover {
-  background: #334955;
+.danger {
+  background: transparent;
+  border: 1px solid #51363e;
+  color: #e0a6ac;
 }
-.progress {
-  margin-top: 15px;
-  color: #e2bd7d;
+.hero-actions button {
+  min-height: 48px;
+  min-width: 130px;
   font-size: 12px;
 }
-.panel {
-  background: #141f2a;
-  border: 1px solid #293c4d;
-  border-radius: 14px;
-  max-width: 750px;
+.hero-actions .primary {
+  min-width: 164px;
+}
+.hero-info {
+  position: absolute;
+  right: 20px;
+  bottom: 26px;
+  width: 230px;
+  border: 1px solid #263b52;
+  background: linear-gradient(135deg, #0b1521f2, #080f17f5);
+  border-radius: 10px;
+  padding: 12px;
+  z-index: 2;
+  box-shadow: 0 12px 30px #0007;
+}
+.info-art {
+  height: 78px;
+  background: url("../assets/nexum-mine-hero.png") 77% 35% / cover;
+  border-radius: 5px;
+  margin-bottom: 13px;
+}
+.hero-info .info-eyebrow {
+  font-size: 9px;
+  color: #9cacc0;
+  margin-bottom: 5px;
+}
+.hero-info h3 {
+  font-family: Outfit, Inter, sans-serif;
+  font-size: 17px;
+  margin: 0 0 14px;
+}
+.info-divider {
+  height: 1px;
+  background: #223247;
+  margin-bottom: 11px;
+}
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #91a6bf;
+  font-size: 9px;
+  margin: 12px 1px;
+}
+.info-row .icon {
+  width: 15px;
+  height: 15px;
+}
+.info-row strong {
+  color: #e6eef8;
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.info-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #19a2ff;
+  font-size: 10px;
+  text-decoration: none;
+  background: none;
+  padding: 0;
+  margin-top: 14px;
+}
+.info-link .icon {
+  width: 13px;
+}
+.library-section {
+  padding: 27px 0 8px;
+}
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 15px;
+  gap: 15px;
+}
+.section-heading h2 {
+  font-family: Outfit, Inter, sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+.section-heading h2 > span {
+  font-family: Inter, sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  color: #59708a;
+  margin-left: 10px;
+}
+.sort-label {
+  color: #7e91aa;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sort-label select {
+  border: 0;
+  background: transparent;
+  color: #d3dfed;
+  font-size: 10px;
+  padding: 4px 20px 4px 4px;
+}
+.games {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+.game-card,
+.coming-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #203249;
+  background: linear-gradient(135deg, #101b29, #0a141f);
+  border-radius: 8px;
+  min-width: 0;
+}
+.cover {
+  height: 126px;
+  background: #101c2b url("../assets/nexum-mine-hero.png") 76% 48% / cover;
+  position: relative;
+  overflow: hidden;
+}
+.cover:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 65%, #0b152177);
+}
+.cover-title {
+  position: absolute;
+  left: 11px;
+  bottom: 15px;
+  z-index: 1;
+  font-family: Impact, "Arial Black", sans-serif;
+  font-size: 27px;
+  letter-spacing: -0.6px;
+  line-height: 0.95;
+  color: #e2eaf3;
+  text-shadow: 0 2px 3px #000;
+}
+.cover-title span {
+  display: block;
+  color: #ffb54f;
+  margin-left: 14px;
+}
+.card-details {
+  padding: 13px 11px;
+  min-height: 69px;
+}
+.card-details h3 {
+  font-size: 10px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-meta {
+  color: #93a7c2;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.card-meta .icon {
+  height: 12px;
+  width: 12px;
+  color: #23dcaf;
+}
+.card-action {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: transparent;
+  border-radius: inherit;
+}
+.game-card:hover {
+  border-color: #2584d4;
+  transform: translateY(-2px);
+}
+.game-card:focus-within {
+  outline: 2px solid #06b6da;
+}
+.coming-card {
+  opacity: 0.75;
+}
+.world {
+  background-image: url("../assets/nexum-worlds.png");
+  background-size: 200% 200%;
+}
+.world-0 {
+  background-position: 0 0;
+}
+.world-1 {
+  background-position: 100% 0;
+}
+.world-2 {
+  background-position: 0 100%;
+}
+.world-3 {
+  background-position: 100% 100%;
+}
+.sidebar-game .mini-cover.world {
+  background-size: 200% 200%;
+}
+.coming-card .card-meta {
+  color: #68809e;
+}
+.empty {
   padding: 35px;
+  color: #8b9eb5;
+  text-align: center;
+}
+.notice,
+.update {
+  border: 1px solid #555039;
+  background: #24241ccc;
+  color: #e0cf9f;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 11px;
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+.update {
+  background: #102d47;
+  border-color: #285776;
+  color: #bedcf2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+.update .primary,
+.update .secondary {
+  min-height: 32px;
+  padding: 8px 14px;
+}
+.page-panel {
+  padding: 24px 4px 0;
+  max-width: 1120px;
+  margin: auto;
+}
+.page-heading {
+  margin-bottom: 29px;
+  max-width: 650px;
+}
+.eyebrow {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #159afa;
+}
+.page-heading h2 {
+  font-family: Outfit, Inter, sans-serif;
+  font-size: 43px;
+  font-weight: 500;
+  line-height: 1.1;
+  margin: 14px 0;
+}
+.page-heading h2 span {
+  color: #6596d4;
+}
+.page-heading p,
+p.muted {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #879bb5;
+}
+.multiplayer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.panel {
+  border: 1px solid #22374d;
+  border-radius: 12px;
+  background: linear-gradient(140deg, #111e2d, #0b1624);
+  padding: 28px;
+}
+.panel-icon .icon {
+  height: 31px;
+  width: 31px;
+  color: #3c9bff;
+  margin-bottom: 14px;
+}
+.panel h3 {
+  font-family: Outfit, Inter, sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0 0 14px;
 }
 .panel p {
-  max-width: 560px;
+  font-size: 11px;
+  line-height: 1.8;
+  color: #8c9fba;
 }
 .panel label,
 dialog label {
   display: block;
-  color: #b6c7d5;
-  font-size: 12px;
-  margin: 26px 0 9px;
+  font-size: 10px;
+  color: #b1c4dc;
+  margin: 24px 0 9px;
 }
 input,
-select,
-textarea {
+textarea,
+select {
+  background: #07111f;
+  border: 1px solid #2b415c;
+  border-radius: 7px;
+  color: #e5edf6;
+  padding: 12px;
   width: 100%;
-  background: #0d151e;
-  border: 1px solid #35495a;
-  border-radius: 8px;
-  padding: 13px;
-  color: #e4eef5;
 }
 textarea {
   resize: vertical;
   min-height: 100px;
-  margin-bottom: 18px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.panel > small {
+  display: block;
+  font-size: 9px;
+  color: #6e86a3;
+  margin-top: 16px;
+}
+.host-panel {
+  background:
+    linear-gradient(#102034d9, #0a1726ed),
+    url("../assets/nexum-mine-hero.png") 70% 50% / cover;
+}
+.host-game {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #254162;
+  border-radius: 8px;
+  padding: 12px;
+  background: #0a172899;
+  margin-top: 24px;
+}
+.host-game .mini {
+  width: 45px;
+  height: 49px;
+  background: url("../assets/nexum-mine-hero.png") 78% 60% / cover;
+  border-radius: 4px;
+}
+.host-game strong {
+  font-size: 12px;
+}
+.host-game small {
+  display: block;
+  font-size: 9px;
+  color: #89a0bd;
+  margin-top: 5px;
+}
+.host-game button {
+  margin-left: auto;
+  padding: 9px 12px;
+  min-height: 35px;
+  font-size: 10px;
+}
+.info-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  color: #8fa9c8;
+  margin-top: 24px;
+}
+.info-line .icon {
+  width: 17px;
+}
+.settings-panel {
+  max-width: 720px;
 }
 .inline {
   display: flex;
   gap: 12px;
 }
 .inline input {
-  flex: 1;
-}
-.inline button {
-  flex: none;
+  min-width: 0;
 }
 .settings-links {
   display: flex;
   gap: 12px;
-  margin-top: 30px;
+  flex-wrap: wrap;
+  border-top: 1px solid #24364c;
+  padding-top: 25px;
+  margin-top: 28px;
 }
-.muted {
-  color: #70889d !important;
-  font-size: 12px !important;
+.settings-panel .muted {
+  font-size: 10px;
+  margin-bottom: 0;
 }
-.notice {
-  border: 1px solid #5f5134;
-  color: #e7ca91;
-  background: #292517;
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 18px;
-  font-size: 12px;
-  line-height: 1.5;
+.download-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border: 1px solid #20374e;
+  background: #101c2b;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 12px;
+}
+.download-row .download-art {
+  width: 95px;
+  height: 65px;
+  background: url("../assets/nexum-mine-hero.png") 80% 50% / cover;
+  border-radius: 5px;
+}
+.download-row h3 {
+  font-size: 14px;
+  margin: 0 0 7px;
+}
+.download-row p {
+  font-size: 10px;
+  color: #8fa6c4;
+  margin: 0;
+}
+.download-copy {
+  flex: 1;
+}
+.download-row progress {
+  width: 100%;
+  height: 5px;
+  accent-color: #0787ff;
+  margin-top: 13px;
+}
+.progress-copy {
+  font-size: 10px;
+  color: #7dbbfc;
+  margin-top: 11px;
 }
 .session {
-  margin-top: 25px;
-  padding: 20px;
-  border: 1px solid #426b5f;
-  border-radius: 12px;
-  background: #162f2b;
+  margin-top: 23px;
+  border: 1px solid #245573;
+  background: linear-gradient(120deg, #0d2939, #0d1c30);
+  border-radius: 10px;
+  padding: 17px 20px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 15px;
-  align-items: center;
+}
+.session strong {
+  font-size: 11px;
 }
 .session p {
-  font-size: 11px;
-  margin: 8px 0 0;
-}
-.online-dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  background: #98d2ad;
-  border-radius: 50%;
-  margin-right: 8px;
+  font-size: 10px;
+  color: #8eb0cd;
+  margin: 7px 0 0;
 }
 .session-actions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  justify-content: flex-end;
 }
 .session-actions button {
-  font-size: 11px;
-  padding: 10px;
-}
-.danger {
-  color: #dbb4a7;
+  font-size: 10px;
+  min-height: 35px;
+  padding: 8px 12px;
 }
 footer {
+  margin-top: 25px;
+  border-top: 1px solid #17283a;
+  padding-top: 15px;
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
-  color: #5e7588;
-  margin-top: 35px;
-  border-top: 1px solid #202f3c;
-  padding-top: 20px;
+  font-size: 9px;
+  color: #536b87;
 }
-footer span {
-  color: #496174;
+footer > span {
+  font-family: Outfit, Inter, sans-serif;
+  letter-spacing: 3px;
+  color: #8396ae;
 }
 dialog {
-  border: 1px solid #486454;
-  border-radius: 14px;
-  background: #16232c;
-  color: #eef4f5;
-  padding: 32px;
+  border: 1px solid #2d526f;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #122034, #0a1422);
+  color: #e5edf8;
+  padding: 30px;
   width: 510px;
-  box-shadow: 0 20px 100px #0008;
+  box-shadow: 0 25px 100px #000b;
 }
 dialog::backdrop {
-  background: #03090dc9;
+  background: #01060ccf;
+  backdrop-filter: blur(5px);
+}
+dialog h2 {
+  font-family: Outfit, Inter, sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  margin: 12px 0;
+}
+dialog p {
+  font-size: 11px;
+  color: #8ea6c3;
+  line-height: 1.7;
 }
 .dialog-actions {
   display: flex;
@@ -467,41 +961,261 @@ dialog::backdrop {
   justify-content: flex-end;
   margin-top: 25px;
 }
-.update {
-  padding: 12px 16px;
-  background: #1e323d;
-  border: 1px solid #3d596d;
-  margin-bottom: 18px;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-}
-.update button {
-  padding: 8px 14px;
-}
-.update span {
-  margin-right: 16px;
+.sr-only {
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 [hidden] {
   display: none !important;
 }
-@media (max-width: 1050px) {
-  main {
-    padding: 28px;
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #080f17;
+}
+::-webkit-scrollbar-thumb {
+  background: #253a52;
+  border: 2px solid #080f17;
+  border-radius: 9px;
+}
+@media (min-width: 1450px) {
+  .hero {
+    min-height: 470px;
+    padding: 42px;
   }
+  .hero-info {
+    width: 255px;
+    right: 27px;
+    bottom: 31px;
+  }
+  .hero-copy {
+    width: 62%;
+  }
+  .info-art {
+    height: 94px;
+  }
+  .cover {
+    height: 158px;
+  }
+  .hero-actions button {
+    min-height: 52px;
+    min-width: 160px;
+    font-size: 13px;
+  }
+  .hero-actions .primary {
+    min-width: 185px;
+  }
+  .hero-description {
+    font-size: 14px;
+  }
+  .game-logo {
+    font-size: 105px;
+  }
+}
+@media (max-width: 1220px) {
   .sidebar {
-    width: 205px;
+    width: 202px;
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+  .brand {
+    gap: 9px;
+  }
+  .brand span {
+    font-size: 17px;
+    letter-spacing: 4px;
+  }
+  .brand img {
+    width: 35px;
+  }
+  .topbar {
+    left: 202px;
+    padding-left: 22px;
+    gap: 10px;
+  }
+  .top-actions {
+    gap: 10px;
+  }
+  .search {
+    width: 45%;
+  }
+  .top-divider {
+    display: none;
   }
   main {
-    margin-left: 205px;
-    width: calc(100% - 205px);
+    margin-left: 202px;
+    padding-left: 19px;
+    padding-right: 19px;
   }
-  .welcome {
-    padding: 24px;
+  .hero {
+    min-height: 386px;
+    padding: 28px 23px;
   }
-  .orbit {
+  .hero-info {
+    width: 195px;
+    right: 14px;
+    bottom: 22px;
+    padding: 10px;
+  }
+  .info-art {
+    height: 61px;
+  }
+  .hero-copy {
+    width: calc(100% - 185px);
+  }
+  .hero-actions {
+    gap: 7px;
+  }
+  .hero-actions button {
+    min-width: 100px;
+    padding: 11px;
+    min-height: 43px;
+    font-size: 11px;
+  }
+  .hero-actions .primary {
+    min-width: 120px;
+  }
+  .hero-actions .icon {
+    width: 17px;
+  }
+  .game-logo {
+    font-size: 68px;
+    margin-bottom: 20px;
+  }
+  .hero-description {
+    font-size: 11px;
+  }
+  .chip {
+    font-size: 8px;
+    padding: 6px 7px;
+  }
+  .chips {
+    gap: 5px;
+    margin-bottom: 18px;
+  }
+  .games {
+    gap: 9px;
+  }
+  .cover {
+    height: 107px;
+  }
+  .card-details {
+    padding: 11px 9px;
+  }
+  .cover-title {
+    font-size: 22px;
+  }
+  .profile-button strong {
+    max-width: 88px;
+  }
+  .hero-info .info-row {
+    font-size: 8px;
+  }
+  .hero-info .info-row strong {
+    font-size: 8px;
+  }
+  .info-link {
+    font-size: 9px;
+  }
+  .info-row {
+    gap: 5px;
+  }
+}
+@media (max-width: 1050px) {
+  .hero-info {
     display: none;
+  }
+  .hero-copy {
+    width: 80%;
+    max-width: 540px;
+  }
+  .hero {
+    background-position: 65% center;
+  }
+  .games {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .cover {
+    height: 130px;
+  }
+  .coming-card:nth-child(n + 4) {
+    display: none;
+  }
+  .multiplayer-grid {
+    grid-template-columns: 1fr;
+  }
+  .topbar {
+    padding-right: 140px;
+  }
+  .profile-button > .icon {
+    display: none;
+  }
+  .top-actions {
+    gap: 6px;
+  }
+  .profile-button small {
+    display: none;
+  }
+  .search {
+    width: 55%;
+  }
+  .section-heading h2 {
+    font-size: 20px;
+  }
+  .nav {
+    gap: 12px;
+  }
+  .brand {
+    height: 76px;
+  }
+  .session {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+.mine-cover {
+  background-image: url("../assets/nexum-mine-hero.png");
+  background-position: 78% 50%;
+}
+.brand {
+  -webkit-app-region: no-drag;
+}
+.sidebar-game .mini-cover.world-0 {
+  background-position: 0 0;
+}
+.sidebar-game .mini-cover.world-1 {
+  background-position: 100% 0;
+}
+.sidebar-game .mini-cover.world-2 {
+  background-position: 0 100%;
+}
+.sidebar-game .mine-cover {
+  background-position: 78% 50%;
+}
+.sort-label {
+  white-space: nowrap;
+}
+.sort-label select {
+  width: auto;
+}
+.hero {
+  background-size: calc(100% - 145px) auto;
+  background-position: left center;
+  background-repeat: no-repeat;
+}
+@media (max-width: 1050px) {
+  .hero {
+    background-size: cover;
+    background-position: 65% center;
   }
 }
