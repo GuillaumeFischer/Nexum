@@ -41,6 +41,6 @@ export function createServer({mode='free',storagePath=null,launcher=false}={}){
  server.on('close',()=>clearInterval(timer));
  return {server,rooms:game.rooms,game,close(){try{game.persist();}finally{clearInterval(timer);for(const s of sockets)s.destroy();server.close();server.closeAllConnections();}}};
 }
-if(process.argv[1]&&fileURLToPath(import.meta.url)===process.argv[1]){const app=createServer({storagePath:process.env.SAVE_FILE||fileURLToPath(new URL('./data/rooms.json',import.meta.url))}),port=Number(process.env.PORT)||3001;app.server.listen(port,'0.0.0.0',()=>console.log(`Deep Miners 0.13.4 — Exploration libre : http://localhost:${port}`));for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>{app.close();process.exit(0);});}
+if(process.argv[1]&&fileURLToPath(import.meta.url)===process.argv[1]){const app=createServer({storagePath:process.env.SAVE_FILE||fileURLToPath(new URL('./data/rooms.json',import.meta.url))}),port=Number(process.env.PORT)||3001;app.server.listen(port,'0.0.0.0',()=>console.log(`Deep Miners 0.13.5 — Exploration libre : http://localhost:${port}`));for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>{app.close();process.exit(0);});}
 
 

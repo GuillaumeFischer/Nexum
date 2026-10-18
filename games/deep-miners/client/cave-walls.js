@@ -15,7 +15,7 @@ export function caveEdges(tiles, x, y) {
   };
 }
 
-export function drawCaveWall(c, tiles, x, y, px, py, texture) {
+export function drawCaveWall(c, tiles, x, y, px, py, texture, inlay = null) {
   const edge = caveEdges(tiles, x, y);
   const left = px + (edge.left ? 3 : 0),
     right = px + SIZE - (edge.right ? 3 : 0);
@@ -50,6 +50,12 @@ export function drawCaveWall(c, tiles, x, y, px, py, texture) {
     }
   c.fillStyle = exposed ? "#0607078c" : near ? "#020405cf" : "#010203f5";
   c.fillRect(px, py, SIZE, SIZE);
+  if (inlay) {
+    c.save();
+    c.globalAlpha *= exposed ? 0.85 : near ? 0.62 : 0.3;
+    inlay("cap");
+    c.restore();
+  }
   if (edge.bottom) {
     const ridgeLeft = py + 21 + random(x, y, 71) * 6,
       ridgeRight = py + 21 + random(x + 1, y, 71) * 6;
@@ -64,6 +70,7 @@ export function drawCaveWall(c, tiles, x, y, px, py, texture) {
     c.closePath();
     c.clip();
     texture();
+    inlay?.("face");
     const g = c.createLinearGradient(px, py + 20, px, bottom);
     g.addColorStop(0, "#0b090b8c");
     g.addColorStop(0.22, "#9f75422b");

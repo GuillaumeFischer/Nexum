@@ -1,0 +1,3 @@
+Les minerais sont désormais incrustés dans les parois : de petits fragments colorés et des veines affleurent dans la roche, avec une texture granuleuse et des fissures qui les recouvrent partiellement. Ils suivent le dessus et les faces verticales du mur, au lieu d’apparaître comme des amas posés dessus.
+
+L’or, le fer, le cuivre, l’étain, la turquoise, l’améthyste et l’obsidiane astrale gardent chacun une couleur et une disposition reconnaissables. Les icônes de l’inventaire et les ressources récoltées restent identiques. Les nouvelles veines utilisent le même éclairage et disparaissent dès que leur bloc est creusé. Aucune nouvelle mine ni mise à jour de NEXUM n’est nécessaire.

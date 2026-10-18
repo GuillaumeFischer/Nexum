@@ -13,7 +13,8 @@ import {BIOME_TERRAIN_ASSET,BIOME_PROPS_ASSET,BIOME_PROPS_V2_ASSET,surfaceLayers
 import {BIOME_PROP_LAYOUT} from './biome-layout.js';
 import {createMaterialSampler} from './material-texture.js';
 import {caveView} from './cave-camera.js';
-import {caveEdges,drawCaveWall,drawCaveContact} from './cave-walls.js';
+import {drawCaveWall,drawCaveContact} from './cave-walls.js';
+import {drawOreVeins} from './ore-veins.js';
 import {CROPS,cropStage,cropReady,isFieldItem,fieldActionReason,fieldAt} from './agriculture.js';
 import {AGRICULTURE_LAYOUT,FARMER_LAYOUT} from './agriculture-layout.js';
 import {EMPTY_WALK_LAYOUT,SHOVEL_WALK_LAYOUT} from './farming-walk-layout.js';
@@ -264,10 +265,11 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
     for (let y=y0;y<y1;y++) for (let x=x0;x<x1;x++) {
       const t=state.tiles[y][x]; if(t<=0||t===8||t===10||t===11||builtWalls.has(x+','+y))continue;
       const px=x*s+ox,py=y*s+oy;
+      const mineral=mineralForTile(t);
       drawCaveWall(c,state.tiles,x,y,px,py,()=>{
         if(assets['biome-terrain'])biomeMaterial(c,assets['biome-terrain'],wallMaterial(state.world,x,y),x,y,px,py);
         else material(c,terrainAtlas,2,x,y,px,py);
-      });
+      },mineral&&t!==1?plane=>drawOreVeins(c,mineral.id,x,y,px,py,plane):null);
     }
     for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
       const t=state.tiles[y][x];if(t<=0||t===10||t===11||builtWalls.has(x+','+y))continue;const px=x*s+ox,py=y*s+oy;
@@ -275,8 +277,6 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
         c.save();c.translate(px+s/2+dx*(s/2-7),py+s/2+dy*(s/2-7));c.rotate(angle);
         atlas(c,rimAtlas,Math.floor(hash(x,y,dx+dy*4+84)*4),2,2,-43,-35,86,70);c.restore();
       }
-      const mineral=mineralForTile(t),image=mineral&&assets['mineral-'+mineral.id];
-      if(image&&t!==1){const edge=caveEdges(state.tiles,x,y);c.save();c.translate(px+s*.5,py+(edge.bottom?43:32));c.rotate((hash(x,y,21)-.5)*.12);const size=48+hash(x,y,13)*4;c.drawImage(image,-size/2,-size*.38,size,size*.76);c.restore();}
       if(t===8)naturalProp(c,state,x,y,px,py);
     }
     for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(state.tiles[y][x]===0){
