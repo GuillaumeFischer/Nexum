@@ -79,6 +79,25 @@ async function run() {
     for(let i=0;i<90;i++)r.draw(c,w,h,state,me,i/60,settings);
     return {png:canvas.toDataURL('image/png').split(',')[1],tile:r.pointerTile(w/2,h/2)};
   };void 0;`);
+  if (process.env.NEXUM_RENDER_SELECTED_ART === "1") {
+    const { verifySelectedArt } = await import("./selected-art.mjs");
+    const metrics = await verifySelectedArt({ js, scratch, checked });
+    await fs.writeFile(
+      path.join(scratch, "report.json"),
+      JSON.stringify(
+        {
+          ok: true,
+          checks,
+          ...metrics,
+          gameRoot: process.env.NEXUM_MENU_GAME_ROOT,
+          historicalSuitesRerun: false,
+        },
+        null,
+        2,
+      ),
+    );
+    return;
+  }
   if (process.env.NEXUM_RENDER_ORES === "1") {
     const { verifyOreInlays } = await import("./ore-inlays.mjs");
     const metrics = await verifyOreInlays({ js, scratch, checked });

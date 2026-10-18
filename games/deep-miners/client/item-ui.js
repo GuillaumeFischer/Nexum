@@ -14,7 +14,7 @@ export function iconKey(id,p){return id==='pick'?'pick'+(p?.pickTier||0):id==='f
 export function itemIcon(id,p,cls=''){
  if(Object.hasOwn(MINERALS,id)){const el=document.createElement('span');el.className='item-icon building-icon '+cls;el.setAttribute('aria-hidden','true');el.innerHTML=`<img src="${MINERALS[id].asset}" alt="" loading="lazy">`;return el;}
  if(id==='trash'){const el=document.createElement('span');el.className='item-icon building-icon '+cls;el.setAttribute('aria-hidden','true');el.innerHTML='<img src="assets/trash.webp" alt="" loading="lazy">';return el;}
- if(id==='lamp'){const el=document.createElement('span');el.className='item-icon building-icon '+cls;el.setAttribute('aria-hidden','true');el.innerHTML='<img src="assets/torch.webp" alt="" loading="lazy">';return el;}
+ if(id==='lamp'){const el=document.createElement('span');el.className='item-icon building-icon '+cls;el.setAttribute('aria-hidden','true');el.innerHTML='<img src="assets/torch-tripod-icon.webp" alt="" loading="lazy">';return el;}
  const el=document.createElement('span'),index=ICONS.indexOf(iconKey(id,p));el.className='item-icon '+cls;el.setAttribute('aria-hidden','true');
  if(id==='rail'||id==='wagon'){
   if(id==='rail'){el.className+=' building-icon';el.innerHTML='<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M4 17h56M4 45h56" stroke="#57452f" stroke-width="7"/><path d="M14 0v64M49 0v64" stroke="#414340" stroke-width="5"/><path d="M13 0v64M48 0v64" stroke="#abaaa1" stroke-width="1.5"/></svg>';return el;}

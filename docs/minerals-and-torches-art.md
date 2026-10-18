@@ -1,0 +1,32 @@
+# Sprites de minerais et torche — Deep Miners 0.13.6
+
+Choix du joueur : A pour les métaux (veines naturelles), D pour les gemmes (poches cristallines), torche 2 (trépied en fer), diffusion douce.
+
+Mode : ImageGen intégré, génération de trois nouvelles images transparentes. Originaux conservés dans le dossier de livraison local ; versions de jeu optimisées dans client/assets. Les atlas et les points d’ancrage sont décrits dans ore-veins.js et torch-art-layout.js.
+
+Sources originales :
+- outputs/Deep-Miners-Propositions/Production-0.13.6/ore-atlas.png
+- outputs/Deep-Miners-Propositions/Production-0.13.6/torch-tripod-body.png
+- outputs/Deep-Miners-Propositions/Production-0.13.6/torch-flames.png
+
+## Prompt final — ore-atlas
+
+Use case: stylized-concept. Asset type: PRODUCTION TRANSPARENT SPRITE ATLAS for Deep Miners, an original hand-painted pixel-art 2.5D overhead mining game.
+Create ONE SQUARE image containing a perfectly regular 3-column by 3-row grid of equal SQUARE cells. EXACT seven ore wall inlay sprites, each isolated with real transparent alpha. Row 1 left GOLD, centre COPPER, right TIN. Row 2 left IRON, centre TURQUOISE crystals, right AMETHYST crystals. Row 3 left ASTRAL OBSIDIAN crystal, centre completely empty, right completely empty. No labels, numbers, cell lines or backdrop.
+Each cell is a shallow mineral patch that will be composited onto an existing stone wall, NOT a separate cubic block or a loot pile. Leave 10 percent transparent margin inside every cell. Orthographic surface-aligned relief; visible top surface of rough mineral inlay, no perspective cube or independent supporting platform.
+Four METALS: richly worked NATURAL BRANCHING GEOLOGICAL VEINS. Dense irregular seams which bifurcate into thin metallic threads, some deeper partly buried raw fragments, oxidized stains, worn stone lips occluding sections of metal. Gold warm ochre and dull brass with tiny gold glints; copper oxidized burnt orange, restrained green patina; tin silvery chalk grey; iron deep rust brown and dark gunmetal, distinguishable from copper. These are irregular geological deposits, not a repeated scatter of diamonds or flat polygons. Non-emissive metallic material.
+Three GEMS: SHALLOW CRYSTAL-LINED POCKETS carved inside a broken dark stone cavity. Turquoise cyan-blue, amethyst violet-purple, astral obsidian very dark indigo with small pale lilac iridescent facets. Rich small angular facets recede inside the hollow, rock rim hides parts of the crystals. Nothing floating, no giant projecting crystal bouquet. Cavity and tiny surrounding broken stone rim may be opaque; everything outside the individual mineral patch must be transparent and irregularly feathered into alpha. No large rectangle of host rock.
+Detailed hand-painted pixel-like texture, granular stone, oxidized recesses, tiny chips, subdued directional highlights, matching original mining cave art. Readable at 64 game pixels but finely painted when enlarged. Soft neutral upper-left light baked only for shallow relief, no yellow torch colour cast, no cast shadow outside the patch, no ambient halo, no floor. Genuine transparent background. No text, watermark, border, giant black squares, inventory icons, voxel cubes or photorealism.
+
+## Prompt final — torch-tripod-body
+
+Use case: stylized-concept. Asset type: final static game sprite for Deep Miners, original hand-painted pixel-art underground mining game.
+Exactly ONE small FORGED IRON TRIPOD TORCH SUPPORT, isolated on genuine transparent alpha. Production game sprite viewed from a gentle overhead three-quarter camera, front and top both visible. Whole support from open brazier rim to all three ground feet is visible, centered with transparent margin. Ground-standing dark weathered wrought-iron tripod, three splayed sturdy legs and broad little metal feet all on the SAME ground plane, compact cylindrical iron brazier basket above them, bronze rivets, soot and restrained copper highlights. Three-dimensional hand-painted detail, rough metal, small asymmetrical wear, readable strong silhouette at 42 pixels tall in the game. Original fantasy mine equipment, practical and solid.
+IMPORTANT STATIC SUPPORT ONLY. Open brazier contains a quiet bed of charcoal and very faint dark red embers. ABSOLUTELY NO FLAME, no sparks, no smoke, no orange/yellow halo, no ground, no background, no floor shadow; the live game renders fire and contact shadow separately. No stake, no wall mount, no lantern glass, no person, no tools, no labels, no text. All three feet lie on a stable shared floor plane, frontal feet finish near the bottom; comfortable 10 percent transparent padding. Tall-ish compact tripod proportions, overall width about 70 percent of support height. Neutral soft upper-left illumination with detailed steel and bronze materials. True alpha transparency.
+
+## Prompt final — torch-flames
+
+Use case: stylized-concept. Asset type: transparent ANIMATED FLAME SPRITE SHEET for Deep Miners matching a richly hand-painted pixel-art mine game.
+ONE landscape sprite sheet with EXACTLY FOUR COLUMNS and THREE ROWS of equal SQUARE cells, 12 flame frames total. Perfect regular 4 by 3 alignment. Each cell contains ONLY a single small flame, on true alpha transparency. No torch body, no brazier, no wood, no floor, no smoke cloud, no external radial bloom, no labels, cell dividers or black background.
+Twelve consecutive unique fluid frames of the SAME natural orange-gold flame loop, read left to right then top to bottom. Narrow shared ROOT centered at x=50 percent, y=88 percent inside every cell; root baseline and width remain identical between frames. Comfortable padding all around, flame height about 65 percent of cell, maximal width about 40 percent of cell. The root is bright cream-white, center warm pale yellow, outer curling tongues amber-orange with a few wispy red-orange tips and subtle translucent edges. Rich painterly pixel-like wisps and granular incandescent texture, not flat vector teardrop, not a huge explosion. The silhouette evolves smoothly: split into two tongues, lean softly left, rise thin, relax broad, lean softly right, then return to original shape for a seamless loop. No detached sparks near the bottom and no random wandering root. Restrained flicker, warm controlled fire, crisp at 25 game pixels tall. Genuine transparent alpha background in every cell, evenly spaced square frames, no hard black or grey matte.
+

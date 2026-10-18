@@ -8,7 +8,9 @@ const scratch = await fs.mkdtemp(path.resolve("test-output", "game-menu-"));
 await fs.mkdir(path.join(scratch, "profile"));
 const options = process.argv.slice(2);
 const fixture =
-  options.includes("--cavern") || options.includes("--ores")
+  options.includes("--cavern") ||
+  options.includes("--ores") ||
+  options.includes("--selected-art")
     ? "tests/cavern-render-electron.mjs"
     : options.includes("--transfers")
       ? "tests/transfer-quantity-electron.mjs"
@@ -27,6 +29,7 @@ const env = {
   NEXUM_MENU_PREVIEW: options.includes("--preview") ? "1" : "0",
   NEXUM_MENU_HIDDEN: options.includes("--hidden") ? "1" : "0",
   NEXUM_RENDER_ORES: options.includes("--ores") ? "1" : "0",
+  NEXUM_RENDER_SELECTED_ART: options.includes("--selected-art") ? "1" : "0",
 };
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.NODE_OPTIONS;

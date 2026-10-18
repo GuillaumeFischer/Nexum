@@ -14,7 +14,9 @@ import {BIOME_PROP_LAYOUT} from './biome-layout.js';
 import {createMaterialSampler} from './material-texture.js';
 import {caveView} from './cave-camera.js';
 import {drawCaveWall,drawCaveContact} from './cave-walls.js';
-import {drawOreVeins} from './ore-veins.js';
+import {drawOreVeins,MINERAL_INLAY_ASSET} from './ore-veins.js';
+import {createTorchArt,torchAnimation,TORCH_LIGHT_RADIUS,TORCH_LIGHT_RANGE} from './torch-art.js';
+import {TORCH_BODY_ASSET,TORCH_FLAME_ASSET} from './torch-art-layout.js';
 import {CROPS,cropStage,cropReady,isFieldItem,fieldActionReason,fieldAt} from './agriculture.js';
 import {AGRICULTURE_LAYOUT,FARMER_LAYOUT} from './agriculture-layout.js';
 import {EMPTY_WALK_LAYOUT,SHOVEL_WALK_LAYOUT} from './farming-walk-layout.js';
@@ -31,11 +33,11 @@ const oreColor = {2:'#e4ac52',3:'#65d4d9',4:'#b49aeb',5:'#dd9871',6:'#b4c5d0',7:
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 export async function loadAssets() {
-  return Object.fromEntries(await Promise.all([...Object.keys(MINERALS).map(id=>'mineral-'+id),'trash','torch','railways-v2','wagon','terrain', 'miner', 'walk', 'miner-farming', 'miner-empty-walk', 'miner-shovel-walk', 'agriculture', 'props', 'rims', 'equipment', 'buildings', 'biome-terrain', 'biome-props', 'biome-props-v2'].map(name => new Promise((resolve, reject) => {
+  return Object.fromEntries(await Promise.all([...Object.keys(MINERALS).map(id=>'mineral-'+id),'trash','mineral-inlays','torch-body','torch-flames','railways-v2','wagon','terrain', 'miner', 'walk', 'miner-farming', 'miner-empty-walk', 'miner-shovel-walk', 'agriculture', 'props', 'rims', 'equipment', 'buildings', 'biome-terrain', 'biome-props', 'biome-props-v2'].map(name => new Promise((resolve, reject) => {
     const im = new Image();
     im.onload = () => resolve([name, im]);
     im.onerror = () => reject(Error(`Impossible de charger assets/${name}.png`));
-    im.src = name.startsWith('mineral-')?MINERALS[name.slice(8)].asset:name === 'trash'?'assets/trash.webp':name === 'torch'?'assets/torch.webp':name === 'railways-v2'?RAIL_ASSET:name==='wagon'?WAGON_ASSET:name === 'buildings' ? BUILDING_ASSET : name === 'biome-terrain' ? BIOME_TERRAIN_ASSET : name === 'biome-props' ? BIOME_PROPS_ASSET : name === 'biome-props-v2' ? BIOME_PROPS_V2_ASSET : `assets/${name}.png`;
+    im.src = name==='mineral-inlays'?MINERAL_INLAY_ASSET:name==='torch-body'?TORCH_BODY_ASSET:name==='torch-flames'?TORCH_FLAME_ASSET:name.startsWith('mineral-')?MINERALS[name.slice(8)].asset:name === 'trash'?'assets/trash.webp':name === 'railways-v2'?RAIL_ASSET:name==='wagon'?WAGON_ASSET:name === 'buildings' ? BUILDING_ASSET : name === 'biome-terrain' ?BIOME_TERRAIN_ASSET:name === 'biome-props'?BIOME_PROPS_ASSET:name==='biome-props-v2'?BIOME_PROPS_V2_ASSET:`assets/${name}.png`;
   }))));
 }
 
@@ -83,6 +85,7 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
   let railwayTracks=new Map();
   const railTextures=new Map();
   const materialSampler=createMaterialSampler(makeCanvas,TILE);
+  const torchArt=createTorchArt(assets,makeCanvas);
   function material(c,im,index,x,y,px,py){materialSampler.draw(c,im,index,4,2,x,y,px,py,detailScale);}
   function biomeMaterial(c,im,index,x,y,px,py){materialSampler.draw(c,im,index,6,2,x,y,px,py,detailScale);}
 
@@ -154,6 +157,10 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
     const g=t.createRadialGradient(128,128,kind==='halo'?34:0,128,128,128);
     g.addColorStop(0,color);
     if(kind==='halo')g.addColorStop(.5,'rgba(0,0,0,.73)');
+    if(kind==='torch-soft'){
+      const match=color.match(/rgba\((.+),([^,]+)\)/),rgb=match[1],alpha=Number(match[2]);
+      for(const [position,strength]of [[.23,.9],[.5,.62],[.78,.2]])g.addColorStop(position,`rgba(${rgb},${alpha*strength})`);
+    }
     if(kind==='beam'){
       const match=color.match(/rgba\((.+),([^,]+)\)/),rgb=match[1],alpha=Number(match[2]);
       g.addColorStop(.42,`rgba(${rgb},${alpha*.78})`);g.addColorStop(.78,`rgba(${rgb},${alpha*.3})`);
@@ -269,7 +276,7 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
       drawCaveWall(c,state.tiles,x,y,px,py,()=>{
         if(assets['biome-terrain'])biomeMaterial(c,assets['biome-terrain'],wallMaterial(state.world,x,y),x,y,px,py);
         else material(c,terrainAtlas,2,x,y,px,py);
-      },mineral&&t!==1?plane=>drawOreVeins(c,mineral.id,x,y,px,py,plane):null);
+      },mineral&&t!==1?plane=>drawOreVeins(c,mineral.id,x,y,px,py,plane,assets['mineral-inlays']):null);
     }
     for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
       const t=state.tiles[y][x];if(t<=0||t===10||t===11||builtWalls.has(x+','+y))continue;const px=x*s+ox,py=y*s+oy;
@@ -410,11 +417,11 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
       const angle=Math.atan2(p.face.y,p.face.x),light={x,y,...shape,angle,range};sources.push(light);
       drawHeadlamp(light,.99,'0,0,0',true);
     }
-    const fixed=(state.installations||[]).filter(item=>['lamp','air','decor'].includes(item.kind)&&item.x*TILE+ox>-220&&item.x*TILE+ox<w+220&&item.y*TILE+oy>-220&&item.y*TILE+oy<h+220).sort((a,b)=>Math.hypot(a.x-me.x,a.y-me.y)-Math.hypot(b.x-me.x,b.y-me.y)).slice(0,quality==='low'?8:16);
+    const fixed=(state.installations||[]).filter(item=>['lamp','air','decor'].includes(item.kind)&&item.x*TILE+ox>-310&&item.x*TILE+ox<w+310&&item.y*TILE+oy>-310&&item.y*TILE+oy<h+310).sort((a,b)=>Math.hypot(a.x-me.x,a.y-me.y)-Math.hypot(b.x-me.x,b.y-me.y)).slice(0,quality==='low'?8:16);
     const present=new Set((state.installations||[]).map(item=>item.id));for(const id of fixedLightCache.keys())if(!present.has(id))fixedLightCache.delete(id);
     const wallKey=(state.installations||[]).filter(s=>s.kind==='wall').map(s=>s.x+','+s.y).join(';');
-    function fixedPoints(item){const key=state.mapVersion+','+wallKey+','+quality+','+item.x+','+item.y;let cached=fixedLightCache.get(item.id);if(cached?.key!==key){cached={key,points:visibility(state.tiles,item,3.3,quality==='low',blocks)};fixedLightCache.set(item.id,cached);}return cached.points;}
-    for(const item of fixed){const x=item.x*TILE+ox,y=item.y*TILE+oy,points=fixedPoints(item);m.save();clipLight(m,points.map(([dx,dy])=>[dx*scale,dy*scale]),x*scale,y*scale);glow(m,x*scale,y*scale,190*scale,'rgba(0,0,0,.96)');m.restore();}
+    function fixedPoints(item){const key=state.mapVersion+','+wallKey+','+quality+','+item.kind+','+item.x+','+item.y;let cached=fixedLightCache.get(item.id);if(cached?.key!==key){cached={key,points:visibility(state.tiles,item,item.kind==='lamp'?TORCH_LIGHT_RANGE:3.3,quality==='low',blocks)};fixedLightCache.set(item.id,cached);}return cached.points;}
+    for(const item of fixed){const x=item.x*TILE+ox,y=item.y*TILE+oy,points=fixedPoints(item);m.save();clipLight(m,points.map(([dx,dy])=>[dx*scale,dy*scale]),x*scale,y*scale);if(item.kind==='lamp'){const {intensity}=torchAnimation(clock,item.id);m.globalAlpha=Math.min(1,intensity*.98);m.drawImage(lightTexture('rgba(0,0,0,.96)','torch-soft'),(x-TORCH_LIGHT_RADIUS)*scale,(y-TORCH_LIGHT_RADIUS)*scale,TORCH_LIGHT_RADIUS*2*scale,TORCH_LIGHT_RADIUS*2*scale);}else glow(m,x*scale,y*scale,190*scale,'rgba(0,0,0,.96)');m.restore();}
     if(state.tiles[3]?.[17]===0){
       const p={x:17.5,y:3},points=visibility(state.tiles,p,4.5,quality==='low',blocks);
       m.save();clipLight(m,points.map(([dx,dy])=>[dx*scale,dy*scale]),(p.x*TILE+ox)*scale,(p.y*TILE+oy)*scale);
@@ -431,7 +438,7 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
       const flicker=1+Math.sin(clock*8)*.035+Math.sin(clock*17)*.018;
       glow(m,(16.2*TILE+ox)*scale,(2.7*TILE+oy)*scale,125*flicker*scale,'#e7a33c30');glow(m,(18.8*TILE+ox)*scale,(3*TILE+oy)*scale,92*scale,'#56c6bd20');
     }
-    for(const item of fixed){const x=item.x*TILE+ox,y=item.y*TILE+oy,points=fixedPoints(item);m.save();clipLight(m,points.map(([dx,dy])=>[dx*scale,dy*scale]),x*scale,y*scale);glow(m,x*scale,y*scale,155*scale,item.kind==='air'?'#65d4d92b':'#ee9b3e50');m.restore();}
+    for(const item of fixed){const x=item.x*TILE+ox,y=item.y*TILE+oy,points=fixedPoints(item);m.save();clipLight(m,points.map(([dx,dy])=>[dx*scale,dy*scale]),x*scale,y*scale);if(item.kind==='lamp'){m.globalAlpha=Math.min(1,torchAnimation(clock,item.id).intensity*.97);m.drawImage(lightTexture('rgba(242,183,108,.26)','torch-soft'),(x-TORCH_LIGHT_RADIUS)*scale,(y-TORCH_LIGHT_RADIUS)*scale,TORCH_LIGHT_RADIUS*2*scale,TORCH_LIGHT_RADIUS*2*scale);}else glow(m,x*scale,y*scale,155*scale,item.kind==='air'?'#65d4d92b':'#ee9b3e50');m.restore();}
     c.drawImage(mask,0,0,w,h);
   }
 
@@ -474,7 +481,7 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
     objectShadows.set(cacheKey,cached);return cached;
   }
   function installation(c,item,clock,ox,oy){
-    if(item.kind==='lamp'){const x=item.x*TILE+ox,y=item.y*TILE+oy;if(assets.torch){const h=54+Math.sin(clock*10+(item.id||0))*.6,w=h*assets.torch.width/assets.torch.height;c.drawImage(assets.torch,x-w/2,y+9-h,w,h);glow(c,x,y-39,9+Math.sin(clock*14+(item.id||0))*2,'#ffb94355');}return;}
+    if(item.kind==='lamp'){torchArt.draw(c,item,clock,ox,oy);return;}
     if(item.kind==='trash'){if(!assets.trash)return;const height=55,width=height*assets.trash.width/assets.trash.height,x=item.x*TILE+ox,y=item.y*TILE+oy,rect={x:0,y:0,w:assets.trash.width,h:assets.trash.height},sprite=shadowedObject(assets.trash,rect,width,height,'trash');c.drawImage(sprite.image,x-width/2-sprite.pad,y+15-height-sprite.pad,sprite.width,sprite.height);return;}
     if(item.kind==='rail'){railSprite(c,item,ox,oy);return;}
     if(item.kind==='wagon'){wagonSprite(c,item,ox,oy);return;}
