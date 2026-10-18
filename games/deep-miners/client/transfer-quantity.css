@@ -1,0 +1,45 @@
+.slot-actions {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+.transfer-control {
+  width: 100%;
+  min-width: 0;
+}
+.transfer-control label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 11px;
+  color: #cbd4dc;
+}
+.transfer-control output {
+  color: #e4bd7d;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.transfer-control input[type="range"] {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0 0 9px;
+  accent-color: #d9b178;
+  cursor: pointer;
+}
+.transfer-control input:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.transfer-control button {
+  width: 100%;
+}
+.transfer-control + .transfer-control {
+  border-top: 1px solid #35434d;
+  padding-top: 12px;
+}
+.transfer-control input:focus-visible {
+  outline: 2px solid #e4bd7d;
+  outline-offset: 4px;
+  border-radius: 3px;
+}

@@ -7,6 +7,9 @@ await fs.mkdir("test-output", { recursive: true });
 const scratch = await fs.mkdtemp(path.resolve("test-output", "game-menu-"));
 await fs.mkdir(path.join(scratch, "profile"));
 const options = process.argv.slice(2);
+const fixture = options.includes("--transfers")
+  ? "tests/transfer-quantity-electron.mjs"
+  : "tests/game-menu-electron.mjs";
 const appRoot = options.includes("--app-root")
   ? path.resolve(options[options.indexOf("--app-root") + 1])
   : process.cwd();
@@ -25,7 +28,7 @@ delete env.ELECTRON_RUN_AS_NODE;
 delete env.NODE_OPTIONS;
 const child = spawn(
   path.resolve("node_modules/electron/dist/electron.exe"),
-  [path.resolve("tests/game-menu-electron.mjs")],
+  [path.resolve(fixture)],
   { env, windowsHide: false, stdio: ["ignore", "pipe", "pipe"] },
 );
 let output = "";

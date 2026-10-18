@@ -1,10 +1,11 @@
+import {drawTransferQuantity,transferCount} from './transfer-quantity.js';
 import {MACHINE_PROFILES,COMMON_STOCK_CAPACITY,acceptsResource} from './machine-profile.js';
 import {RESOURCES,capacity,weight} from './progression.js';
 import {itemIcon,itemName,itemDescription} from './item-ui.js';
 import {COOKING_RECIPES} from './agriculture.js';
 import {ridersOf,WAGON_SEATS,WAGON_CAPACITY} from './railway.js';
 const statuses={working:'En marche',riding:'Mineurs à bord',arrived:'Arrivée à destination',power:'Énergie manquante',fuel:'Bois manquant',materials:'Ingrédients manquants',full:'Stockage plein',idle:'Prêt',growing:'En croissance',charged:'Chargée',empty:'Épuisé'};
-export function drawMachinePanel({state,me,machine,node,button,content,act,openMap,openWorkshop}){
+export function drawMachinePanel({state,me,machine,node,button,content,act,openMap,openWorkshop,draft={values:new Map()},refresh=()=>{}}){
  const profile=MACHINE_PROFILES[machine.kind]||{title:itemName(machine.kind,me)},buffer=machine.kind==='chest'?state.stock:machine.buffer||{},cap=machine.kind==='chest'?COMMON_STOCK_CAPACITY:machine.kind==='wagon'?WAGON_CAPACITY:['arm','conveyor','sorter'].includes(machine.kind)?8:40;
  const panel=node('article',undefined,'machine-panel '+machine.kind+'-panel'),hero=node('div',undefined,'machine-hero'),image=itemIcon(machine.kind,me,'machine-portrait'),intro=node('div');intro.append(node('h2',profile.title),node('p',profile.help,'muted'),node('strong',statuses[machine.status]||'Prêt','machine-status'));hero.append(image,intro);panel.append(hero);content.append(panel);
  if(machine.kind==='battery'){panel.append(node('p',`${Math.round(machine.energy||0)} / 60 énergie`));const meter=node('meter');meter.min=0;meter.max=60;meter.value=machine.energy||0;meter.setAttribute('aria-label','Énergie stockée');panel.append(meter);return;}
@@ -21,8 +22,10 @@ export function drawMachinePanel({state,me,machine,node,button,content,act,openM
  const controls=node('div',undefined,'machine-actions');controls.append(button('Tout déposer',()=>act('transfer',{id:machine.id,direction:'deposit',all:true}),!usable.some(id=>me.cargo[id]>0&&space>=RESOURCES[id].weight)));panel.append(controls);
  function slot(id,output=false){
   const r=RESOURCES[id],tile=node('article',undefined,'machine-slot'+(output?' output-slot':'')),inBag=me.cargo[id]||0,stored=buffer[id]||0,maxDeposit=Math.min(inBag,Math.floor(space/r.weight)),maxTake=Math.min(stored,Math.floor(Math.max(0,capacity(me)-weight(me.cargo))/r.weight)),accepted=acceptsResource(machine,id);tile.append(itemIcon(id,me,'machine-slot-art'),node('strong',r.name),node('span',`${stored} ici · ${inBag} dans le sac`));
-  const row=node('div',undefined,'slot-actions');if(accepted){row.append(button('Déposer 1',()=>act('transfer',{id:machine.id,direction:'deposit',resource:id,count:1}),maxDeposit<1),button('Déposer tout',()=>act('transfer',{id:machine.id,direction:'deposit',resource:id,count:Math.min(9999,maxDeposit)}),maxDeposit<1));tile.ondragover=e=>e.preventDefault();tile.ondrop=e=>{e.preventDefault();const dropped=e.dataTransfer?.getData('text/plain');if(dropped===id&&maxDeposit>0)void act('transfer',{id:machine.id,direction:'deposit',resource:id,count:Math.min(9999,maxDeposit)});};}
-  row.append(button('Prendre 1',()=>act('transfer',{id:machine.id,direction:'withdraw',resource:id,count:1}),maxTake<1),button('Prendre tout',()=>act('transfer',{id:machine.id,direction:'withdraw',resource:id,count:Math.min(9999,maxTake)}),maxTake<1));tile.append(row);return tile;
+  const row=node('div',undefined,'slot-actions');
+  const quantity=(direction,available)=>drawTransferQuantity({machine,resource:id,name:r.name,direction,available,draft,node,button,act,refresh});
+  if(accepted){row.append(quantity('deposit',maxDeposit));tile.ondragover=e=>e.preventDefault();tile.ondrop=e=>{e.preventDefault();const dropped=e.dataTransfer?.getData('text/plain');if(dropped===id&&maxDeposit>0)void act('transfer',{id:machine.id,direction:'deposit',resource:id,count:transferCount(draft,machine.id+'-'+id+'-deposit',maxDeposit)});};}
+  row.append(quantity('withdraw',maxTake));tile.append(row);return tile;
  }
  const workspace=node('div',undefined,'machine-workspace');panel.append(workspace);
  const inputs=profile.inputs===undefined?Object.keys(RESOURCES).filter(id=>buffer[id]>0||me.cargo[id]>0):profile.inputs,outputs=profile.outputs||[],grid=node('div',undefined,'machine-slot-grid');
