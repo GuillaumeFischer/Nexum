@@ -12,6 +12,8 @@ import {WALK_LAYOUT} from './walk-layout.js';
 import {BIOME_TERRAIN_ASSET,BIOME_PROPS_ASSET,BIOME_PROPS_V2_ASSET,surfaceLayers,wallMaterial,naturalDecoration,floorDecoration,decorationOcclusion} from './biome-art.js';
 import {BIOME_PROP_LAYOUT} from './biome-layout.js';
 import {createMaterialSampler} from './material-texture.js';
+import {caveView} from './cave-camera.js';
+import {caveEdges,drawCaveWall,drawCaveContact} from './cave-walls.js';
 import {CROPS,cropStage,cropReady,isFieldItem,fieldActionReason,fieldAt} from './agriculture.js';
 import {AGRICULTURE_LAYOUT,FARMER_LAYOUT} from './agriculture-layout.js';
 import {EMPTY_WALK_LAYOUT,SHOVEL_WALK_LAYOUT} from './farming-walk-layout.js';
@@ -206,42 +208,6 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
   // The recolored atlases have been cut into small frames and can be released.
   sprites.clear();
 
-  // Only exposed edges are irregular. Shared internal edges stay joined exactly.
-  function rockPath(c, tiles, x, y, px, py) {
-    const s = TILE, top = tiles[y - 1]?.[x] === 0, right = tiles[y]?.[x + 1] === 0;
-    const bottom = tiles[y + 1]?.[x] === 0, left = tiles[y]?.[x - 1] === 0;
-    const inset = (gx, gy, k) => 6 + hash(gx, gy, k) * 10;
-    const tl = {x:px + (left ? inset(x,y,5) : 0), y:py + (top ? inset(x,y,3) : 0)};
-    const tr = {x:px + s - (right ? inset(x+1,y,5) : 0), y:py + (top ? inset(x+1,y,3) : 0)};
-    const br = {x:px + s - (right ? inset(x+1,y+1,5) : 0), y:py + s - (bottom ? inset(x+1,y+1,3) : 0)};
-    const bl = {x:px + (left ? inset(x,y+1,5) : 0), y:py + s - (bottom ? inset(x,y+1,3) : 0)};
-    const radii = [
-      top&&left ? Math.min(22,(tr.x-tl.x)/2,(bl.y-tl.y)/2) : 0,
-      top&&right ? Math.min(22,(tr.x-tl.x)/2,(br.y-tr.y)/2) : 0,
-      bottom&&right ? Math.min(22,(br.x-bl.x)/2,(br.y-tr.y)/2) : 0,
-      bottom&&left ? Math.min(22,(br.x-bl.x)/2,(bl.y-tl.y)/2) : 0
-    ];
-    const [rtl, rtr, rbr, rbl] = radii;
-    c.beginPath(); c.moveTo(tl.x + rtl, tl.y);
-    const edge = (ax, ay, bx, by, exposed, gx, gy, dx, dy) => {
-      if (!exposed) { c.lineTo(bx, by); return; }
-      for (let i = 1; i <= 4; i++) {
-        const f = i / 4, n = i === 4 ? 0 : (hash(gx + f * dx, gy + f * dy, 9) - .5) * 7;
-        c.lineTo(ax + (bx - ax) * f + (dy ? n : 0), ay + (by - ay) * f + (dx ? n : 0));
-      }
-    };
-    edge(tl.x+rtl,tl.y,tr.x-rtr,tr.y,top,x,y,1,0);
-    if (rtr) c.quadraticCurveTo(tr.x,tr.y,tr.x,tr.y+rtr); else c.lineTo(tr.x,tr.y);
-    edge(tr.x,tr.y+rtr,br.x,br.y-rbr,right,x+1,y,0,1);
-    if (rbr) c.quadraticCurveTo(br.x,br.y,br.x-rbr,br.y); else c.lineTo(br.x,br.y);
-    edge(br.x-rbr,br.y,bl.x+rbl,bl.y,bottom,x+1,y+1,-1,0);
-    if (rbl) c.quadraticCurveTo(bl.x,bl.y,bl.x,bl.y-rbl); else c.lineTo(bl.x,bl.y);
-    edge(bl.x,bl.y-rbl,tl.x,tl.y+rtl,left,x,y+1,0,-1);
-    if (rtl) c.quadraticCurveTo(tl.x,tl.y,tl.x+rtl,tl.y); else c.lineTo(tl.x,tl.y);
-    c.closePath();
-    return {top, right, bottom, left};
-  }
-
   function stone(c, x, y, radius, seed) {
     c.fillStyle = '#0006'; c.beginPath(); c.ellipse(x+2,y+3,radius*1.05,radius*.65,0,0,TAU); c.fill();
     c.save(); c.beginPath();
@@ -287,7 +253,7 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
     const builtWalls=new Set((state.installations||[]).filter(s=>s.kind==='wall').map(s=>Math.floor(s.x)+','+Math.floor(s.y)));
     const s=TILE, x0=Math.max(0,Math.floor(-ox/s)-1), x1=Math.min(state.tiles[0].length,Math.ceil((w-ox)/s)+1);
     const y0=Math.max(0,Math.floor(-oy/s)-1), y1=Math.min(state.tiles.length,Math.ceil((h-oy)/s)+1);
-    // Floor also underlies the small visual bevels in rock walls.
+    // A continuous floor lies beneath the relief and the nonblocking scenery.
     for (let y=y0;y<y1;y++) for (let x=x0;x<x1;x++) {
       if(state.tiles[y][x]<0)continue;
       if(assets['biome-terrain']){
@@ -296,18 +262,12 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
       if(state.world){c.fillStyle=biomeAt(state.world,x,y).tint;c.fillRect(x*s+ox,y*s+oy,s,s);}
     }
     for (let y=y0;y<y1;y++) for (let x=x0;x<x1;x++) {
-      const t=state.tiles[y][x]; if(t<=0||t===10||t===11||assets['biome-props']&&naturalDecoration(state.world,state.tiles,x,y)||builtWalls.has(x+','+y))continue;
+      const t=state.tiles[y][x]; if(t<=0||t===8||t===10||t===11||builtWalls.has(x+','+y))continue;
       const px=x*s+ox,py=y*s+oy;
-      const exposed=rockPath(c,state.tiles,x,y,px,py);
-      c.shadowColor='#000a'; c.shadowBlur=9; c.shadowOffsetY=5; c.fillStyle='#1c2227'; c.fill();
-      c.shadowBlur=0; c.shadowOffsetY=0;
-      c.save(); c.clip();
-      if(assets['biome-terrain'])biomeMaterial(c,assets['biome-terrain'],t===8?8:6,x,y,px,py);
-      else material(c,terrainAtlas,2,x,y,px,py);
-      // Face depth, lit upper rims, and darker recesses, without outlines per cell.
-      if(exposed.bottom){const g=c.createLinearGradient(px,py+s-25,px,py+s);g.addColorStop(0,'transparent');g.addColorStop(1,'#010305b0');c.fillStyle=g;c.fillRect(px,py,s,s);}
-      if(exposed.top){const g=c.createLinearGradient(px,py,px,py+20);g.addColorStop(0,'#c3ab7638');g.addColorStop(1,'transparent');c.fillStyle=g;c.fillRect(px,py,s,s);}
-      c.restore();
+      drawCaveWall(c,state.tiles,x,y,px,py,()=>{
+        if(assets['biome-terrain'])biomeMaterial(c,assets['biome-terrain'],wallMaterial(state.world,x,y),x,y,px,py);
+        else material(c,terrainAtlas,2,x,y,px,py);
+      });
     }
     for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
       const t=state.tiles[y][x];if(t<=0||t===10||t===11||builtWalls.has(x+','+y))continue;const px=x*s+ox,py=y*s+oy;
@@ -316,13 +276,14 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
         atlas(c,rimAtlas,Math.floor(hash(x,y,dx+dy*4+84)*4),2,2,-43,-35,86,70);c.restore();
       }
       const mineral=mineralForTile(t),image=mineral&&assets['mineral-'+mineral.id];
-      if(image){const exposed=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>state.tiles[y+dy]?.[x+dx]===0);if(t!==1||exposed){c.save();c.translate(px+s*.5,py+s*.5);c.rotate((hash(x,y,21)-.5)*.16);const size=t===1?54:58+hash(x,y,13)*4;c.drawImage(image,-size/2,-size/2,size,size);c.restore();}}
-      if(!mineral)naturalProp(c,state,x,y,px,py);
+      if(image&&t!==1){const edge=caveEdges(state.tiles,x,y);c.save();c.translate(px+s*.5,py+(edge.bottom?43:32));c.rotate((hash(x,y,21)-.5)*.12);const size=48+hash(x,y,13)*4;c.drawImage(image,-size/2,-size*.38,size,size*.76);c.restore();}
+      if(t===8)naturalProp(c,state,x,y,px,py);
     }
     for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(state.tiles[y][x]===0){
       const px=x*s+ox,py=y*s+oy;
+      drawCaveContact(c,x,y,px,py,(gx,gy)=>{const tile=state.tiles[gy]?.[gx];return tile>0&&tile!==8&&tile!==10&&tile!==11&&!builtWalls.has(gx+','+gy);});
       for(const [dx,dy]of [[1,0],[-1,0],[0,1],[0,-1]])if(state.tiles[y+dy]?.[x+dx]>0&&state.tiles[y+dy]?.[x+dx]!==10&&state.tiles[y+dy]?.[x+dx]!==11&&state.tiles[y+dy]?.[x+dx]!==8&&!builtWalls.has((x+dx)+','+(y+dy))){
-        for(let k=0;k<3;k++){const f=(k+.2+hash(x,y,k+55)*.6)/3, r=3+hash(x,y,k+61)*6;
+        for(let k=0;k<2;k++){if(hash(x,y,k+77)<.4)continue;const f=(k+.15+hash(x,y,k+55)*.7)/2, r=3+hash(x,y,k+61)*5;
           const xx=px+(dx?dx>0?s-4-r:4+r:f*s), yy=py+(dy?dy>0?s-4-r:4+r:f*s);
           stone(c,xx,yy,r,x+y*35+k);
         }
@@ -345,14 +306,14 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
     const version=state.mapVersion??state.revision;
     if(terrainTiles!==state.tiles||terrainVersion!==version||terrainRevision!==state.revision){
       if(terrainTiles&&state.world){
-        for(const [x,y,old,t]of state.changedCells||[])for(let cy=Math.max(0,Math.floor((y-1)/cells));cy<=Math.floor((y+1)/cells);cy++)for(let cx=Math.max(0,Math.floor((x-1)/cells));cx<=Math.floor((x+1)/cells);cx++){const chunk=chunks.get(cy*maxCX+cx);if(chunk){chunk.dirty=true;if(old>0&&t===0)chunk.urgent=true;}}
+        for(const [x,y,old,t]of state.changedCells||[])for(let cy=Math.max(0,Math.floor((y-2)/cells));cy<=Math.floor((y+2)/cells);cy++)for(let cx=Math.max(0,Math.floor((x-2)/cells));cx<=Math.floor((x+2)/cells);cx++){const chunk=chunks.get(cy*maxCX+cx);if(chunk){chunk.dirty=true;if(old>0&&t===0)chunk.urgent=true;}}
         // Repaint cached sectors when returning to a previously unloaded zone.
-        for(const [key,data]of Object.entries(state.chunks||{})){if(terrainChunkVersions[key]===data.version)continue;const [cx,cy]=key.split(',').map(Number);for(let dy=0;dy<4;dy++)for(let dx=0;dx<4;dx++){const chunk=chunks.get((cy*4+dy)*maxCX+cx*4+dx);if(chunk)chunk.dirty=true;}}
+        for(const [key,data]of Object.entries(state.chunks||{})){if(terrainChunkVersions[key]===data.version)continue;const [cx,cy]=key.split(',').map(Number);for(let dy=-1;dy<=4;dy++)for(let dx=-1;dx<=4;dx++){const gx=cx*4+dx,gy=cy*4+dy;if(gx<0||gy<0||gx>=maxCX||gy>=maxCY)continue;const chunk=chunks.get(gy*maxCX+gx);if(chunk)chunk.dirty=true;}}
       }else if(terrainTiles){
         for(let y=0;y<state.tiles.length;y++){
           if(terrainTiles[y]===state.tiles[y]&&terrainVersion===version&&terrainRevision===state.revision)continue;
           for(let x=0;x<state.tiles[y].length;x++)if(terrainTiles[y]?.[x]!==state.tiles[y][x]){
-            for(let cy=Math.max(0,Math.floor((y-1)/cells));cy<=Math.min(maxCY-1,Math.floor((y+1)/cells));cy++)for(let cx=Math.max(0,Math.floor((x-1)/cells));cx<=Math.min(maxCX-1,Math.floor((x+1)/cells));cx++){
+            for(let cy=Math.max(0,Math.floor((y-2)/cells));cy<=Math.min(maxCY-1,Math.floor((y+2)/cells));cy++)for(let cx=Math.max(0,Math.floor((x-2)/cells));cx<=Math.min(maxCX-1,Math.floor((x+2)/cells));cx++){
               const chunk=chunks.get(cy*maxCX+cx);if(chunk){chunk.dirty=true;if(terrainTiles[y]?.[x]>0&&state.tiles[y][x]===0)chunk.urgent=true;}
             }
           }
@@ -390,7 +351,8 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
     const points=[];
     for(let a=-Math.PI;a<Math.PI;a+=low?.075:.045){
       const hit=rayDistance(tiles,p.x,p.y,a,range,blocks);
-      const d=Math.min(range,hit+.24);points.push([Math.cos(a)*d*TILE,Math.sin(a)*d*TILE]);
+      // A torch also lights the raised face of the first rock cell.
+      const d=Math.min(range,hit+.65);points.push([Math.cos(a)*d*TILE,Math.sin(a)*d*TILE]);
     }
     return points;
   }
@@ -439,7 +401,7 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
     const blocks=assets['biome-props']?decorationOcclusion(state.world,state.tiles,state.installations):undefined;
     const headlampWalls=new Set((state.installations||[]).filter(s=>s.kind==='wall').map(s=>Math.floor(s.x)+','+Math.floor(s.y)));
     m.resetTransform();m.clearRect(0,0,mask.width,mask.height);m.globalCompositeOperation='source-over';
-    m.fillStyle=`rgba(0,3,8,${clamp(.96-brightness*.095,.64,.92)})`;m.fillRect(0,0,mask.width,mask.height);m.globalCompositeOperation='destination-out';
+    m.fillStyle=`rgba(0,1,3,${clamp(.985-brightness*.07,.72,.97)})`;m.fillRect(0,0,mask.width,mask.height);m.globalCompositeOperation='destination-out';
     const sources=[];
     for(const p of state.players){
       if(!p.alive||p.escaped)continue;const x=p.x*TILE+ox,y=p.y*TILE+oy;
@@ -469,7 +431,7 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
       const flicker=1+Math.sin(clock*8)*.035+Math.sin(clock*17)*.018;
       glow(m,(16.2*TILE+ox)*scale,(2.7*TILE+oy)*scale,125*flicker*scale,'#e7a33c30');glow(m,(18.8*TILE+ox)*scale,(3*TILE+oy)*scale,92*scale,'#56c6bd20');
     }
-    for(const item of fixed){const x=item.x*TILE+ox,y=item.y*TILE+oy,points=fixedPoints(item);m.save();clipLight(m,points.map(([dx,dy])=>[dx*scale,dy*scale]),x*scale,y*scale);glow(m,x*scale,y*scale,135*scale,item.kind==='air'?'#65d4d92b':'#e7a33c35');m.restore();}
+    for(const item of fixed){const x=item.x*TILE+ox,y=item.y*TILE+oy,points=fixedPoints(item);m.save();clipLight(m,points.map(([dx,dy])=>[dx*scale,dy*scale]),x*scale,y*scale);glow(m,x*scale,y*scale,155*scale,item.kind==='air'?'#65d4d92b':'#ee9b3e50');m.restore();}
     c.drawImage(mask,0,0,w,h);
   }
 
@@ -710,14 +672,15 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
     const reset=lastCode!==state.code||state.time<lastGameTime;
     if(reset){previousTiles.clear();particles.length=0;chunks.clear();chamberPropCache.clear();materialSampler.clear();fixedLightCache.clear();terrainTiles=null;terrainVersion=terrainRevision=-1;lastRevision=-1;camera=null;lastClock=null;animator.reset();}
     lastCode=state.code;lastGameTime=state.time;
-    const quality=settings.quality||'high',brightness=settings.brightness??1,zoom=clamp(settings.zoom??1.1,.8,1.35);
-    const scale=clamp(Math.ceil((settings.pixelRatio||1)*zoom*2)/2,1,2);
-    if(detailScale!==scale){detailScale=scale;chunks.clear();propTextures.clear();objectShadows.clear();terrainTiles=null;}
+    const quality=settings.quality||'high',brightness=settings.brightness??1;
     animator.prune(state.players);
     if(!camera||Math.hypot(camera.x-me.x,camera.y-me.y)>5)camera={x:me.x,y:me.y};
     const dt=lastClock===null?0:clamp(clock-lastClock,0,.1),ease=1-Math.exp(-dt*16);
     camera.x+=(me.x-camera.x)*ease;camera.y+=(me.y-camera.y)*ease;lastClock=clock;
-    const vw=w/zoom,vh=h/zoom,ox=vw/2-camera.x*TILE,oy=vh/2-camera.y*TILE;view={zoom,ox,oy};
+    view=caveView(w,h,camera,settings.zoom);
+    const {zoom,ox,oy,width:vw,height:vh}=view;
+    const scale=clamp(Math.ceil((settings.pixelRatio||1)*zoom*2)/2,1,2);
+    if(detailScale!==scale){detailScale=scale;chunks.clear();propTextures.clear();objectShadows.clear();terrainTiles=null;}
     c.save();c.clearRect(0,0,w,h);c.fillStyle='#02050a';c.fillRect(0,0,w,h);c.scale(zoom,zoom);
     terrain(c,state,ox,oy,vw,vh);fluids(c,state,ox,oy,vw,vh,clock);chamberProps(c,state,ox,oy,vw,vh);builtSurfaces(c,state,ox,oy,vw,vh);updateParticles(state,clock,quality);
     const scenery=visibleStructures(state,ox,oy,vw,vh);
@@ -733,7 +696,7 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
   }
 
   function overlays(c,w,h,state,me,clock,settings){
-    const zoom=clamp(settings.zoom??1.1,.8,1.35),cam=camera||me,ox=w/zoom/2-cam.x*TILE,oy=h/zoom/2-cam.y*TILE;
+    const {zoom,ox,oy}=caveView(w,h,camera||me,settings.zoom);
     c.save();c.scale(zoom,zoom);
     for(const p of state.players){
       if(p.escaped||p.vehicleId&&state.players.find(q=>q.vehicleId===p.vehicleId)?.id!==p.id)continue;const x=p.x*TILE+ox,y=p.y*TILE+oy;

@@ -7,9 +7,11 @@ await fs.mkdir("test-output", { recursive: true });
 const scratch = await fs.mkdtemp(path.resolve("test-output", "game-menu-"));
 await fs.mkdir(path.join(scratch, "profile"));
 const options = process.argv.slice(2);
-const fixture = options.includes("--transfers")
-  ? "tests/transfer-quantity-electron.mjs"
-  : "tests/game-menu-electron.mjs";
+const fixture = options.includes("--cavern")
+  ? "tests/cavern-render-electron.mjs"
+  : options.includes("--transfers")
+    ? "tests/transfer-quantity-electron.mjs"
+    : "tests/game-menu-electron.mjs";
 const appRoot = options.includes("--app-root")
   ? path.resolve(options[options.indexOf("--app-root") + 1])
   : process.cwd();
@@ -41,7 +43,11 @@ child.stderr.on("data", (bytes) => {
 });
 const timeout = setTimeout(
   () => child.kill(),
-  options.includes("--preview") ? 110000 : 45000,
+  options.includes("--preview")
+    ? 110000
+    : options.includes("--cavern")
+      ? 90000
+      : 45000,
 );
 try {
   const [code] = await once(child, "exit");

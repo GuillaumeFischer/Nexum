@@ -88,7 +88,8 @@ export function decorationOcclusion(world,tiles,installations=[]){
   const walls=new Set(installations.filter(s=>s.kind==='wall').map(s=>Math.floor(s.x)+','+Math.floor(s.y))),cache=new Map();
   return (x,y)=>{
     const key=x+','+y;if(cache.has(key))return cache.get(key);
-    const tile=tiles[y]?.[x],blocked=walls.has(key)||tile!==0&&!naturalDecoration(world,tiles,x,y);
+    const tile=tiles[y]?.[x],decoration=(tile===8||tile===10)&&naturalDecoration(world,tiles,x,y);
+    const blocked=walls.has(key)||tile!==0&&!decoration;
     cache.set(key,blocked);return blocked;
   };
 }
