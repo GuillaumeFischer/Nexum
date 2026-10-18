@@ -20,8 +20,8 @@ export function canMove(world,x,y,from=null){
 }
 
 // Shared by the authoritative simulation and visual local prediction.
-export function movePlayer(world,p,input,dt){
-  if(p.vehicleId){if(p.vehicleDriver&&p.vehicleAutomatic&&(input.up||input.down||input.left||input.right)){p.vehicleAutomatic=false;p.destination=null;p.route=[];}if(!p.vehicleDriver&&!p.vehicleAutomatic)return p;return advanceRailVehicle(world,p,p.vehicleAutomatic?{}:input,dt,!!p.vehicleAutomatic);}
+export function movePlayer(world,p,input,dt,tracks){
+  if(p.vehicleId){if(p.vehicleDriver&&p.vehicleAutomatic&&(input.up||input.down||input.left||input.right)){p.vehicleAutomatic=false;p.destination=null;p.route=[];}if(!p.vehicleDriver&&!p.vehicleAutomatic)return p;return advanceRailVehicle(world,p,p.vehicleAutomatic?{}:input,dt,!!p.vehicleAutomatic,tracks);}
   const oldX=p.x,oldY=p.y;
   let dx=Number(!!input.right)-Number(!!input.left),dy=Number(!!input.down)-Number(!!input.up);
   p.moving=false;
