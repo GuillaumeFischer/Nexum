@@ -13,6 +13,7 @@ import {BIOME_TERRAIN_ASSET,BIOME_PROPS_ASSET,BIOME_PROPS_V2_ASSET,surfaceLayers
 import {BIOME_PROP_LAYOUT} from './biome-layout.js';
 import {createMaterialSampler} from './material-texture.js';
 import {caveView} from './cave-camera.js';
+import {followCamera} from './camera-follow.js';
 import {drawCaveWall,drawCaveContact} from './cave-walls.js';
 import {drawOreVeins,MINERAL_INLAY_ASSET} from './ore-veins.js';
 import {createTorchArt,torchAnimation,TORCH_LIGHT_RADIUS,TORCH_LIGHT_RANGE} from './torch-art.js';
@@ -681,9 +682,8 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
     lastCode=state.code;lastGameTime=state.time;
     const quality=settings.quality||'high',brightness=settings.brightness??1;
     animator.prune(state.players);
-    if(!camera||Math.hypot(camera.x-me.x,camera.y-me.y)>5)camera={x:me.x,y:me.y};
-    const dt=lastClock===null?0:clamp(clock-lastClock,0,.1),ease=1-Math.exp(-dt*16);
-    camera.x+=(me.x-camera.x)*ease;camera.y+=(me.y-camera.y)*ease;lastClock=clock;
+    const dt=lastClock===null?0:clamp(clock-lastClock,0,.1);
+    camera=followCamera(camera,me,dt);lastClock=clock;
     view=caveView(w,h,camera,settings.zoom);
     const {zoom,ox,oy,width:vw,height:vh}=view;
     const scale=clamp(Math.ceil((settings.pixelRatio||1)*zoom*2)/2,1,2);

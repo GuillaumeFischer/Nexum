@@ -14,20 +14,20 @@ export function createAnimator(){
     const walkSpeed=3.1*(1-(player.bag||0)/(capacity(player)*2.5));
     const running=walking?Math.max(0,Math.min(1,(distance/dt/Math.max(.1,walkSpeed)-1.08)/.42)):0;
     pose.run+=(running-pose.run)*(1-Math.exp(-dt*18));
-    pose.heading+=(player.face.x-pose.heading)*(1-Math.exp(-dt*22));
-    if(walking){pose.phase+=distance/(1.42+pose.run*.22);pose.weight=Math.min(1,pose.weight+dt*20);pose.settle=Math.round(pose.phase*2)/2;}
-    else {pose.weight=Math.max(0,pose.weight-dt*24);pose.phase+=(pose.settle-pose.phase)*(1-Math.exp(-dt*24));}
+    pose.heading=player.face.x;
+    if(walking){if(pose.weight===0)pose.phase=.125;pose.phase+=distance/(1.25+pose.run*.15);pose.weight=1;}
+    else {pose.weight=0;pose.phase=0;}
     pose.x=player.x;pose.y=player.y;pose.clock=clock;
     const phase=((pose.phase%1)+1)%1,dir=facingRow(player.face);
     const weight=player.vehicleId?0:pose.weight,step=Math.sin(phase*TAU),flight=(1-Math.cos(phase*TAU*2))/2;
     return {dir,walk:weight>.05&&player.alive&&!player.escaped&&!player.using&&!(player.mine>0),column:Math.floor(phase*8)%8,phase,run:pose.run,
       // Gait follows travelled distance, so blocked movement never runs in place.
       // All body transforms pivot at the feet; contact phases have zero lift.
-      lift:weight?-flight*(.45+pose.run*.65)*weight:0,
-      lean:weight?pose.heading*(.012+pose.run*.048)*weight:0,
-      sway:weight?step*(.008+pose.run*.008)*weight:0,
-      stretchX:1+flight*(.004+pose.run*.006)*weight,
-      stretchY:1-flight*(.008+pose.run*.012)*weight};
+      lift:weight?-flight*(.25+pose.run*.25)*weight:0,
+      lean:weight?pose.heading*(.008+pose.run*.022)*weight:0,
+      sway:weight?step*(.003+pose.run*.002)*weight:0,
+      stretchX:1+flight*.002*weight,
+      stretchY:1-flight*(.002+pose.run*.002)*weight};
   }
   return {update,reset(){poses.clear();},prune(players){const ids=new Set(players.map(p=>p.id));for(const id of poses.keys())if(!ids.has(id))poses.delete(id);}};
 }
