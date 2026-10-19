@@ -448,7 +448,7 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
     if(p.using&&!p.vehicleId)index=16+dir;
     const x=p.x*TILE+ox+(seat?.x||0),y=p.y*TILE+oy+(seat?.y||0);
     c.fillStyle='#0009';if(!seat){c.beginPath();c.ellipse(x,y+2,20,8,0,0,TAU);c.fill();}
-    c.save();c.translate(x,y);if(p.vehicleId){c.translate(0,-5);c.scale(.6,.6);}if(!p.alive)c.rotate(Math.PI/2);
+    c.save();c.translate(x,y);if(p.vehicleId){c.translate(0,-5);c.scale(.6,.6);}else if(pose.walk){c.rotate(pose.lean+pose.sway);c.scale(pose.stretchX,pose.stretchY);}if(!p.alive)c.rotate(Math.PI/2);
     const breathe=p.vehicleId?0:pose.walk?pose.lift:p.moving||p.mine||p.using?0:Math.sin(clock*2+p.slot)*.35;
     const held=p.vehicleId?null:p.heldItem===undefined?'pick':p.heldItem,farmer=held!=='pick'&&assets['miner-farming'];
     const farmerColumn=!p.vehicleId&&(p.using||(p.actionSeconds||0)>0)?3:0;

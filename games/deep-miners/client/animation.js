@@ -1,22 +1,33 @@
-const TAU=Math.PI*2,STRIDE=1.6;
+import {capacity} from './progression.js';
+const TAU=Math.PI*2;
 export const facingRow=face=>face.y>0?0:face.x>0?1:face.y<0?2:3;
 
 export function createAnimator(){
   const poses=new Map();
   function update(player,clock){
     let pose=poses.get(player.id);
-    if(!pose){pose={x:player.x,y:player.y,clock,phase:(player.slot||0)/6,weight:0,settle:0};poses.set(player.id,pose);}
+    if(!pose){pose={x:player.x,y:player.y,clock,phase:0,weight:0,settle:0,run:0,heading:player.face.x};poses.set(player.id,pose);}
     const dt=Math.max(0,Math.min(.1,clock-pose.clock)),distance=Math.hypot(player.x-pose.x,player.y-pose.y);
     const teleported=distance>.9||clock-pose.clock>.35;
     const walking=!player.vehicleId&&!teleported&&player.alive&&!player.escaped&&!player.using&&!(player.mine>0)&&dt>0&&distance/dt>.15&&(player.moving||distance>.012);
-    if(teleported||player.vehicleId){pose.phase=pose.weight=0;pose.settle=0;}
-    if(walking){pose.phase+=distance/STRIDE;pose.weight=Math.min(1,pose.weight+dt*12);pose.settle=Math.ceil(pose.phase*2)/2;}
-    else {pose.weight=Math.max(0,pose.weight-dt*10);pose.phase+=(pose.settle-pose.phase)*(1-Math.exp(-dt*18));}
+    if(teleported||player.vehicleId){pose.phase=pose.weight=pose.run=0;pose.settle=0;pose.heading=player.face.x;}
+    const walkSpeed=3.1*(1-(player.bag||0)/(capacity(player)*2.5));
+    const running=walking?Math.max(0,Math.min(1,(distance/dt/Math.max(.1,walkSpeed)-1.08)/.42)):0;
+    pose.run+=(running-pose.run)*(1-Math.exp(-dt*18));
+    pose.heading+=(player.face.x-pose.heading)*(1-Math.exp(-dt*22));
+    if(walking){pose.phase+=distance/(1.42+pose.run*.22);pose.weight=Math.min(1,pose.weight+dt*20);pose.settle=Math.round(pose.phase*2)/2;}
+    else {pose.weight=Math.max(0,pose.weight-dt*24);pose.phase+=(pose.settle-pose.phase)*(1-Math.exp(-dt*24));}
     pose.x=player.x;pose.y=player.y;pose.clock=clock;
     const phase=((pose.phase%1)+1)%1,dir=facingRow(player.face);
-    return {dir,walk:pose.weight>.05&&player.alive&&!player.escaped&&!player.using&&!(player.mine>0),column:Math.floor(phase*8)%8,phase,
-      // Small motion follows each actual step; it is independent of global time.
-      lift:-(1-Math.cos(phase*TAU*2))*.45*pose.weight};
+    const weight=player.vehicleId?0:pose.weight,step=Math.sin(phase*TAU),flight=(1-Math.cos(phase*TAU*2))/2;
+    return {dir,walk:weight>.05&&player.alive&&!player.escaped&&!player.using&&!(player.mine>0),column:Math.floor(phase*8)%8,phase,run:pose.run,
+      // Gait follows travelled distance, so blocked movement never runs in place.
+      // All body transforms pivot at the feet; contact phases have zero lift.
+      lift:weight?-flight*(.45+pose.run*.65)*weight:0,
+      lean:weight?pose.heading*(.012+pose.run*.048)*weight:0,
+      sway:weight?step*(.008+pose.run*.008)*weight:0,
+      stretchX:1+flight*(.004+pose.run*.006)*weight,
+      stretchY:1-flight*(.008+pose.run*.012)*weight};
   }
   return {update,reset(){poses.clear();},prune(players){const ids=new Set(players.map(p=>p.id));for(const id of poses.keys())if(!ids.has(id))poses.delete(id);}};
 }
