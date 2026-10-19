@@ -444,14 +444,14 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
 
   function miner(c,p,clock,ox,oy,seat=null) {
     const pose=animator.update(p,clock),dir=pose.dir;if(p.vehicleId){pose.walk=false;pose.lift=0;}
-    let index=dir*4+(p.mine>0?(Math.floor(clock*8)%2?3:0):pose.walk?[1,0,2,0][Math.floor(pose.phase*4)%4]:0);
-    if(p.using)index=16+dir;
+    let index=dir*4+(!p.vehicleId&&p.mine>0?(Math.floor(clock*8)%2?3:0):pose.walk?[1,0,2,0][Math.floor(pose.phase*4)%4]:0);
+    if(p.using&&!p.vehicleId)index=16+dir;
     const x=p.x*TILE+ox+(seat?.x||0),y=p.y*TILE+oy+(seat?.y||0);
     c.fillStyle='#0009';if(!seat){c.beginPath();c.ellipse(x,y+2,20,8,0,0,TAU);c.fill();}
-    c.save();c.translate(x,y);if(p.vehicleId){c.translate(Math.sin(clock*5+(p.slot||0))*(p.moving?.45:.1),-5+Math.sin(clock*(p.moving?12:2)+(p.slot||0))*(p.moving?.8:.2));c.rotate(Math.sin(clock*6+(p.slot||0))*(p.moving?.02:0));c.scale(.6,.6);}if(!p.alive)c.rotate(Math.PI/2);
-    const breathe=pose.walk?pose.lift:p.moving||p.mine||p.using?0:Math.sin(clock*2+p.slot)*.35;
+    c.save();c.translate(x,y);if(p.vehicleId){c.translate(0,-5);c.scale(.6,.6);}if(!p.alive)c.rotate(Math.PI/2);
+    const breathe=p.vehicleId?0:pose.walk?pose.lift:p.moving||p.mine||p.using?0:Math.sin(clock*2+p.slot)*.35;
     const held=p.vehicleId?null:p.heldItem===undefined?'pick':p.heldItem,farmer=held!=='pick'&&assets['miner-farming'];
-    const farmerColumn=p.using||(p.actionSeconds||0)>0?3:0;
+    const farmerColumn=!p.vehicleId&&(p.using||(p.actionSeconds||0)>0)?3:0;
     const farmerWalk=farmer&&pose.walk&&farmerColumn===0?farmerWalkFrames.get((p.slot||0)*64+(held==='shovel'?32:0)+dir*8+pose.column):null;
     const frame=farmerWalk||(farmer?farmerFrames.get((p.slot||0)*32+(held==='shovel'?16:0)+dir*4+farmerColumn):pose.walk&&assets.walk?walkFrames.get((p.slot||0)*32+dir*8+pose.column):frames.get((p.slot||0)*20+index));
     c.drawImage(frame.canvas,-frame.canvas.width/4,-frame.feet+breathe,frame.canvas.width/2,frame.canvas.height/2);c.restore();
