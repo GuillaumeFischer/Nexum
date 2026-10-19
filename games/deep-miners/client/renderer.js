@@ -18,6 +18,7 @@ import {drawCaveWall,drawCaveContact} from './cave-walls.js';
 import {drawOreVeins,MINERAL_INLAY_ASSET} from './ore-veins.js';
 import {createTorchArt,torchAnimation,TORCH_LIGHT_RADIUS,TORCH_LIGHT_RANGE} from './torch-art.js';
 import {TORCH_BODY_ASSET,TORCH_FLAME_ASSET} from './torch-art-layout.js';
+import {createNewMinerArt,NEW_MINER_ASSETS} from './new-miner.js';
 import {CROPS,cropStage,cropReady,isFieldItem,fieldActionReason,fieldAt} from './agriculture.js';
 import {AGRICULTURE_LAYOUT,FARMER_LAYOUT} from './agriculture-layout.js';
 import {EMPTY_WALK_LAYOUT,SHOVEL_WALK_LAYOUT} from './farming-walk-layout.js';
@@ -34,11 +35,11 @@ const oreColor = {2:'#e4ac52',3:'#65d4d9',4:'#b49aeb',5:'#dd9871',6:'#b4c5d0',7:
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 export async function loadAssets() {
-  return Object.fromEntries(await Promise.all([...Object.keys(MINERALS).map(id=>'mineral-'+id),'trash','mineral-inlays','torch-body','torch-flames','railways-v2','wagon','terrain', 'miner', 'walk', 'miner-farming', 'miner-empty-walk', 'miner-shovel-walk', 'agriculture', 'props', 'rims', 'equipment', 'buildings', 'biome-terrain', 'biome-props', 'biome-props-v2'].map(name => new Promise((resolve, reject) => {
+  return Object.fromEntries(await Promise.all([...Object.keys(MINERALS).map(id=>'mineral-'+id),...Object.keys(NEW_MINER_ASSETS),'trash','mineral-inlays','torch-body','torch-flames','railways-v2','wagon','terrain','agriculture', 'props', 'rims', 'equipment', 'buildings', 'biome-terrain', 'biome-props', 'biome-props-v2'].map(name => new Promise((resolve, reject) => {
     const im = new Image();
     im.onload = () => resolve([name, im]);
     im.onerror = () => reject(Error(`Impossible de charger assets/${name}.png`));
-    im.src = name==='mineral-inlays'?MINERAL_INLAY_ASSET:name==='torch-body'?TORCH_BODY_ASSET:name==='torch-flames'?TORCH_FLAME_ASSET:name.startsWith('mineral-')?MINERALS[name.slice(8)].asset:name === 'trash'?'assets/trash.webp':name === 'railways-v2'?RAIL_ASSET:name==='wagon'?WAGON_ASSET:name === 'buildings' ? BUILDING_ASSET : name === 'biome-terrain' ?BIOME_TERRAIN_ASSET:name === 'biome-props'?BIOME_PROPS_ASSET:name==='biome-props-v2'?BIOME_PROPS_V2_ASSET:`assets/${name}.png`;
+    im.src = NEW_MINER_ASSETS[name]|| (name==='mineral-inlays'?MINERAL_INLAY_ASSET:name==='torch-body'?TORCH_BODY_ASSET:name==='torch-flames'?TORCH_FLAME_ASSET:name.startsWith('mineral-')?MINERALS[name.slice(8)].asset:name === 'trash'?'assets/trash.webp':name === 'railways-v2'?RAIL_ASSET:name==='wagon'?WAGON_ASSET:name === 'buildings' ? BUILDING_ASSET : name === 'biome-terrain' ?BIOME_TERRAIN_ASSET:name === 'biome-props'?BIOME_PROPS_ASSET:name==='biome-props-v2'?BIOME_PROPS_V2_ASSET:`assets/${name}.png`);
   }))));
 }
 
@@ -87,6 +88,7 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
   const railTextures=new Map();
   const materialSampler=createMaterialSampler(makeCanvas,TILE);
   const torchArt=createTorchArt(assets,makeCanvas);
+  const newMinerArt=assets['miner-v2-idle']?createNewMinerArt(assets,makeCanvas):null;
   function material(c,im,index,x,y,px,py){materialSampler.draw(c,im,index,4,2,x,y,px,py,detailScale);}
   function biomeMaterial(c,im,index,x,y,px,py){materialSampler.draw(c,im,index,6,2,x,y,px,py,detailScale);}
 
@@ -202,7 +204,7 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
     context.drawImage(sheet,rect.x,rect.y,rect.w,rect.h,reference.center-rect.center*scale,158-rect.h*scale,rect.w*scale,rect.h*scale);
     return describeFrame(canvas);
   }
-  for(let slot=0;slot<6;slot++){
+  if(!newMinerArt)for(let slot=0;slot<6;slot++){
     const sheet=spriteSheet(slot);
     for(let index=0;index<20;index++)frames.set(slot*20+index,prepareFrame(sheet,index,4,5));
     if(assets.walk){const walk=spriteSheet(slot,assets.walk,'walk');for(let index=0;index<32;index++)walkFrames.set(slot*32+index,prepareWalkFrame(walk,index,frames.get(slot*20+Math.floor(index/8)*4)));}
@@ -458,6 +460,13 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
     c.drawImage(frame.canvas,-frame.canvas.width/4,-frame.feet+breathe,frame.canvas.width/2,frame.canvas.height/2);c.restore();
   }
 
+  function drawMiner(c,p,clock,ox,oy,seat=null){
+    if(!newMinerArt)return miner(c,p,clock,ox,oy,seat);
+    const pose=animator.update(p,clock),x=p.x*TILE+ox+(seat?.x||0),y=p.y*TILE+oy+(seat?.y||0);
+    if(!seat){c.fillStyle='#0009';c.beginPath();c.ellipse(x,y+2,19,7,0,0,TAU);c.fill();}
+    newMinerArt.draw(c,p,pose,x,y);
+  }
+
   function visibleStructures(state,ox,oy,w,h){
     return (state.structures||[]).filter(s=>s.x*TILE+ox<w&&(s.x+s.w)*TILE+ox>0&&s.y*TILE+oy<h&&(s.y+s.h)*TILE+oy>0);
   }
@@ -552,8 +561,8 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
     for(const item of state.landmarks||[])ordered.push({depth:item.y,item:{...item,kind:'chest',treasure:true}});
     if(state.base?.foundry)ordered.push({depth:3.5,item:{kind:'forge',x:20.5,y:3.5}});
     ordered.sort((a,b)=>a.depth-b.depth);
-    for(const item of ordered)if(item.p)miner(c,item.p,clock,ox,oy);else if(item.item){
-      installation(c,item.item,clock,ox,oy);if(item.item.kind==='wagon'){const riders=state.players.filter(p=>p.vehicleId===item.item.id).sort((a,b)=>a.slot-b.slot);for(const [i,p]of riders.entries()){const horizontal=!!item.item.face?.x,seat={x:horizontal?(i%3-1)*16:(i%2-.5)*20,y:horizontal?Math.floor(i/3)*11-12:Math.floor(i/2)*8-14};c.save();c.beginPath();c.rect(item.item.x*TILE+ox-33,item.item.y*TILE+oy-74,66,82);c.clip();miner(c,p,clock,ox,oy,seat);c.restore();}if(riders.length){c.save();c.beginPath();c.rect(item.item.x*TILE+ox-45,item.item.y*TILE+oy-8,90,40);c.clip();wagonSprite(c,item.item,ox,oy);c.restore();}}
+    for(const item of ordered)if(item.p)drawMiner(c,item.p,clock,ox,oy);else if(item.item){
+      installation(c,item.item,clock,ox,oy);if(item.item.kind==='wagon'){const riders=state.players.filter(p=>p.vehicleId===item.item.id).sort((a,b)=>a.slot-b.slot);for(const [i,p]of riders.entries()){const horizontal=!!item.item.face?.x,seat={x:horizontal?(i%3-1)*16:(i%2-.5)*20,y:horizontal?Math.floor(i/3)*11-12:Math.floor(i/2)*8-14};c.save();c.beginPath();c.rect(item.item.x*TILE+ox-33,item.item.y*TILE+oy-74,66,82);c.clip();drawMiner(c,p,clock,ox,oy,seat);c.restore();}if(riders.length){c.save();c.beginPath();c.rect(item.item.x*TILE+ox-45,item.item.y*TILE+oy-8,90,40);c.clip();wagonSprite(c,item.item,ox,oy);c.restore();}}
     }else structure(c,item.s,ox,oy,item.s.kind==='lift');
   }
 
