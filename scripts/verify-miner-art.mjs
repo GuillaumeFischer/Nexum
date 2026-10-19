@@ -8,6 +8,7 @@ import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {NEW_MINER_ASSETS,createNewMinerArt} from '../games/deep-miners/client/new-miner.js';
 import {MINER_ATLASES,MINER_CELL} from '../games/deep-miners/client/new-miner-layout.js';
+import {spriteComponents} from './lib/sprite-components.mjs';
 const require=createRequire(process.env.CANVAS_MODULE_ROOT?path.join(process.env.CANVAS_MODULE_ROOT,'package.json'):import.meta.url);
 const {createCanvas,loadImage}=require('@napi-rs/canvas');
 const client=fileURLToPath(new URL('../games/deep-miners/client/',import.meta.url));
@@ -24,6 +25,7 @@ for(const [name,sheet]of Object.entries(MINER_ATLASES)){
   let opaque=0,l=width,t=height,r=0,b=0;
   for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(data[(y*width+x)*4+3]>80){opaque++;l=Math.min(l,x);t=Math.min(t,y);r=Math.max(r,x);b=Math.max(b,y);}
   assert(opaque>800,`${name}/${row}/${col} empty`);const margin=Math.min(l,t,width-r-1,height-b-1);
+  assert.equal(spriteComponents(data,width,height,{minimumPixels:4}).parts.length,1,`${name}/${row}/${col} contains detached fragments`);
   assert(margin>=2,`${name}/${row}/${col} clipped (${margin})`);minimumMargin=Math.min(minimumMargin,margin);frames++;
  }
 }
