@@ -29,7 +29,12 @@ export function createIndustrialMinerArt(assets,makeCanvas){
   const frame=industrialMinerFrame(p,pose),s=source(frame,p.slot||0),data=INDUSTRIAL_MINER.frames[frame.row*12+frame.column];c.save();c.translate(x,y);c.imageSmoothingEnabled=true;
   if(frame.seated){c.translate(0,-5);c.scale(.85,.85);}if(!p.alive)c.rotate(Math.PI/2);if(frame.mirror)c.scale(-1,1);
   c.drawImage(s.image,s.x,s.y,cell.width,cell.height,-cell.anchorX/2,-cell.anchorY/2,cell.width/2,cell.height/2);
-  if(frame.carry){const t=INDUSTRIAL_TOOLS.parts[frame.carry],side=frame.row===1,angle=frame.carry==='pick'?(side?2.05:frame.row===2?2.05:-2.05):(side?-.45:frame.row===2?-.4:.4);c.translate((data.hand.x-cell.anchorX)/2,(data.hand.y-cell.anchorY)/2);c.rotate(angle);c.drawImage(assets['miner-industrial-tools'],t.x,t.y,t.w,t.h,-t.grip[0]*t.w/2,-t.grip[1]*t.h/2,t.w/2,t.h/2);}
+  if(frame.carry){const t=INDUSTRIAL_TOOLS.parts[frame.carry],side=frame.row===1,angle=frame.carry==='pick'?(side?2.05:frame.row===2?2.05:-2.05):(side?-.45:frame.row===2?-.4:.4);const hand={x:data.hand.x,y:data.hand.y+4};
+   c.save();c.translate((hand.x-cell.anchorX)/2,(hand.y-cell.anchorY)/2);c.rotate(angle);c.drawImage(assets['miner-industrial-tools'],t.x,t.y,t.w,t.h,-t.grip[0]*t.w/2,-t.grip[1]*t.h/2,t.w/2,t.h/2);c.restore();
+   // Redraw the original fingers over the shaft, in body coordinates. The
+   // tool stays behind the fist without adding a second hand or rotating it.
+   const gx=Math.floor(hand.x-5),gy=Math.floor(hand.y-4);
+   c.drawImage(s.image,s.x+gx,s.y+gy,10,10,(gx-cell.anchorX)/2,(gy-cell.anchorY)/2,5,5);}
   c.restore();return frame;
  }
  function ellipse(c,x,y,rx,ry,alpha){c.save();c.translate(x,y);c.scale(rx,ry);const g=c.createRadialGradient(0,0,0,0,0,1);g.addColorStop(0,`rgba(12,8,4,${alpha})`);g.addColorStop(.5,`rgba(12,8,4,${alpha*.5})`);g.addColorStop(1,'rgba(12,8,4,0)');c.fillStyle=g;c.fillRect(-1,-1,2,2);c.restore();}
