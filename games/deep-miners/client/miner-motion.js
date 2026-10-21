@@ -26,10 +26,13 @@ export function minerMotion(player,pose){
  for(let i=0;i<2;i++){
   const sign=i? -nearSign:nearSign,step=stepPose(phase+i*.5,run,amount);
   const foot=side?point((i?5:1)+step.travel,(i?-3:0)-step.lift):point(sign*7+Math.sin(phase*TAU+i*Math.PI)*.5*amount,(i?-1:0)+step.travel*(back?-.28:.28)-step.lift);
-  const ankle=point(foot.x+(side?-2.8:0)+Math.sin(step.roll)*6,foot.y-6.5*Math.cos(step.roll));
+  // Heel-to-toe roll is visible in profile. In front/rear projection, applying
+  // that pitch as a screen rotation twists the toes and ankles sideways.
+  const roll=side?step.roll:0;
+  const ankle=point(foot.x+(side?-2.8:0)+Math.sin(roll)*6,foot.y-6.5*Math.cos(roll));
   const hip=point(body.x+(side?(i?3:0):sign*4),-25+bob+(side&&i?-2:0));
   const knee=side?point(mix(hip.x,ankle.x,.5)+1.5+step.lift*.95+run*.6*amount,mix(hip.y,ankle.y,.5)-step.lift*.2):point(mix(hip.x,ankle.x,.5)+sign*(.8+step.lift*.12),mix(hip.y,ankle.y,.54)-step.lift*.15);
-  legs.push({hip,knee,ankle,foot,roll:side?step.roll:step.roll*.22,contact:step.contact});
+  legs.push({hip,knee,ankle,foot,roll,contact:step.contact});
  }
  const arms=[];
  for(let i=0;i<2;i++){

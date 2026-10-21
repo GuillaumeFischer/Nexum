@@ -16,9 +16,9 @@ export function createMinerRig(assets,makeCanvas,seatedArt){
   }
   return {...part,image:tile,x:0,y:0,w:tile.width,h:tile.height};
  }
- function piece(c,view,name,slot,p,height,anchor=[.5,.5],angle=0,width=null){
+ function piece(c,view,name,slot,p,height,anchor=[.5,.5],angle=0,width=null,mirror=false){
   const s=source(view,name,slot),w=width??s.w/s.h*height;
-  c.save();c.translate(p.x,p.y);c.rotate(angle);c.drawImage(s.image,s.x,s.y,s.w,s.h,-anchor[0]*w,-anchor[1]*height,w,height);c.restore();
+  c.save();c.translate(p.x,p.y);c.rotate(angle);if(mirror)c.scale(-1,1);c.drawImage(s.image,s.x,s.y,s.w,s.h,-anchor[0]*w,-anchor[1]*height,w,height);c.restore();
  }
  function bone(c,view,name,slot,start,end){
   const s=source(view,name,slot),ax=s.a[0]*s.w,ay=s.a[1]*s.h,bx=s.b[0]*s.w,by=s.b[1]*s.h;
@@ -27,7 +27,11 @@ export function createMinerRig(assets,makeCanvas,seatedArt){
  }
  function leg(c,view,slot,l,near){
   const suffix=near?'Near':'Far';
-  piece(c,view,'boot'+suffix,slot,l.foot,11.2,[view==='east'?.65:.5,.94],l.roll);
+  // The front sheet's first boot points right, whereas the near leg is on the
+  // left of the screen. Match the footwear to its actual side, not sheet order.
+  const boot=view==='south'?(near?'Far':'Near'):suffix;
+  // Both rear boots were painted with the same turn; mirror the right one.
+  piece(c,view,'boot'+boot,slot,l.foot,11.2,[view==='east'?.65:.5,.94],l.roll,null,view==='north'&&near);
   bone(c,view,'shin'+suffix,slot,l.knee,l.ankle);bone(c,view,'thigh'+suffix,slot,l.hip,l.knee);
  }
  function tool(c,view,m,hand){
