@@ -4,7 +4,8 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spriteComponents,spriteRectangle,ownsSpritePixel} from './lib/sprite-components.mjs';
 const require=createRequire(process.env.CANVAS_MODULE_ROOT?path.join(process.env.CANVAS_MODULE_ROOT,'package.json'):import.meta.url),{createCanvas,loadImage}=require('@napi-rs/canvas');
-const source=process.argv[2];if(!source)throw Error('Provide the original rig sheet directory');
+const source=process.argv[2],torsoSource=process.argv[3];
+if(!source||!torsoSource)throw Error('Provide the original rig sheet directory and the sleeveless torso directory');
 const client=fileURLToPath(new URL('../games/deep-miners/client/',import.meta.url));
 const names=['reference','head','torso','pelvis','upperNear','lowerNear','upperFar','lowerFar','thighNear','shinNear','bootNear','thighFar','shinFar','bootFar','pick','shovel'];
 const layouts={},report=[];
@@ -29,8 +30,17 @@ for(const view of ['south','east','north']){
    const xx=r.x+x,yy=r.y+y,from=(yy*image.width+xx)*4,to=(y*r.width+x)*4;
    if(pixels.data[from+3]>=16&&ownsSpritePixel(components,part,xx,yy))data.data.set(pixels.data.subarray(from,from+4),to);
   }
-  tc.putImageData(data,0,0);const scale=Math.min(232/r.width,232/r.height),w=r.width*scale,h=r.height*scale,x=i%4*256+(256-w)/2,y=Math.floor(i/4)*256+(256-h)/2;
-  c.drawImage(tile,x,y,w,h);
+  tc.putImageData(data,0,0);
+  // The original sheet has sleeves painted into its torso. Always replace that
+  // slot with a sleeveless trunk: sleeves belong exclusively to the arm bones.
+  let prepared=tile;
+  if(i===2){
+   const trunk=await loadImage(path.join(torsoSource,'torso-'+view+'.png')),trunkCanvas=createCanvas(trunk.width,trunk.height),trunkContext=trunkCanvas.getContext('2d');trunkContext.drawImage(trunk,0,0);
+   const trunkPixels=trunkContext.getImageData(0,0,trunk.width,trunk.height),trunkParts=spriteComponents(trunkPixels.data,trunk.width,trunk.height,{minimumPixels:1500,expected:1}),trunkRect=spriteRectangle(trunkParts.parts[0],trunk.width,trunk.height);
+   prepared=createCanvas(trunkRect.width,trunkRect.height);prepared.getContext('2d').drawImage(trunkCanvas,trunkRect.x,trunkRect.y,trunkRect.width,trunkRect.height,0,0,trunkRect.width,trunkRect.height);
+  }
+  const scale=Math.min(232/prepared.width,232/prepared.height),w=prepared.width*scale,h=prepared.height*scale,x=i%4*256+(256-w)/2,y=Math.floor(i/4)*256+(256-h)/2;
+  c.drawImage(prepared,x,y,w,h);
   const a=[.5,.08],b=[.5,.91];
   if(i===8||i===11)b[1]=.8;
   if(i===4||i===6){a[0]=i===4?.66:.42;b[0]=i===4?.4:.6;}
@@ -39,7 +49,7 @@ for(const view of ['south','east','north']){
   parts[names[i]]={x,y,w,h,a,b};
  }
  const asset='assets/miner-rig-'+view+'.webp',bytes=await packed.encode('webp',94);await fs.writeFile(path.join(client,asset),bytes);
- layouts[view]={asset,parts};report.push({view,bytes:bytes.length,parts:parts.size||Object.keys(parts).length});
+ layouts[view]={asset,parts};report.push({view,bytes:bytes.length,parts:Object.keys(parts).length,torso:'sleeveless'});
 }
 await fs.writeFile(path.join(client,'miner-rig-layout.js'),'// Continuous character rig; source art and joint anchors prepared by scripts/prepare-miner-rig.mjs.\nexport const MINER_RIG='+JSON.stringify(layouts)+';\n');
-await fs.writeFile(path.join(source,'rig-extraction.json'),JSON.stringify({layouts,report},null,2));console.log(JSON.stringify(report));
+await fs.writeFile(path.join(torsoSource,'rig-extraction.json'),JSON.stringify({layouts,report},null,2));console.log(JSON.stringify(report));

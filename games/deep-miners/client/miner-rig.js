@@ -48,10 +48,14 @@ export function createMinerRig(assets,makeCanvas,seatedArt){
   leg(c,view,slot,m.legs[1],false);
   bone(c,view,'upperFar',slot,m.arms[1].shoulder,m.arms[1].elbow);bone(c,view,'lowerFar',slot,m.arms[1].elbow,m.arms[1].hand);
   leg(c,view,slot,m.legs[0],true);
+  piece(c,view,'pelvis',slot,{x:m.body.x,y:-28+m.body.y+31},8,[.5,.5],0,18);
+  // Keep the sleeveless trunk's aspect ratio. Stretching it to the old sleeve
+  // width would cover the moving shoulders and recreate a second arm outline.
+  piece(c,view,'torso',slot,m.body,26,[.5,.91],m.torsoAngle);
+  // The near arm covers its armhole; the far arm stays behind the trunk.
+  // In profile, drawing both arms behind the torso hides the entire near sleeve.
   tool(c,view,m,m.arms[0].hand);bone(c,view,'lowerNear',slot,m.arms[0].elbow,m.arms[0].hand);
   bone(c,view,'upperNear',slot,m.arms[0].shoulder,m.arms[0].elbow);
-  piece(c,view,'pelvis',slot,{x:m.body.x,y:-28+m.body.y+31},8,[.5,.5],0,18);
-  piece(c,view,'torso',slot,m.body,26,[.5,.91],m.torsoAngle,26);
   piece(c,view,'head',slot,m.head,22,[.5,.94],m.headAngle,24);
   c.restore();return m;
  }

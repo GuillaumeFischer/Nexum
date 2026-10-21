@@ -33,7 +33,9 @@ export function minerMotion(player,pose){
  }
  const arms=[];
  for(let i=0;i<2;i++){
-  const sign=i?-nearSign:nearSign,shoulder=point(body.x+(side?(i?4:-2):sign*10),-48+bob+(side&&i?-1.5:0));
+  // Rear arm sockets sit under the backpack straps of the sleeveless trunk.
+  // The old wider sockets relied on the painted sleeves to hide a small gap.
+  const sign=i?-nearSign:nearSign,shoulder=point(body.x+(side?(i?4:-2):sign*(back?8.5:10)),-48+bob+(side&&i?-1.5:0));
   const swing=Math.sin(phase*TAU+i*Math.PI)*(3.6+run*3.8)*amount;
   const hand=side?point(shoulder.x+2-swing,shoulder.y+22-run*4*amount):point(shoulder.x+sign*(1.3+run*1.4*amount),shoulder.y+22-swing*.4-run*3*amount);
   if(i===0&&held&&(mining||shovelling)){
