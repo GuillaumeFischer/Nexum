@@ -18,8 +18,7 @@ import {drawCaveWall,drawCaveContact} from './cave-walls.js';
 import {drawOreVeins,MINERAL_INLAY_ASSET} from './ore-veins.js';
 import {createTorchArt,torchAnimation,TORCH_LIGHT_RADIUS,TORCH_LIGHT_RANGE} from './torch-art.js';
 import {TORCH_BODY_ASSET,TORCH_FLAME_ASSET} from './torch-art-layout.js';
-import {createNewMinerArt,NEW_MINER_ASSETS} from './new-miner.js';
-import {createMinerRig,MINER_RIG_ASSETS} from './miner-rig.js';
+import {createPixelMinerArt,PIXEL_MINER_ASSETS} from './pixel-miner.js';
 import {CROPS,cropStage,cropReady,isFieldItem,fieldActionReason,fieldAt} from './agriculture.js';
 import {AGRICULTURE_LAYOUT,FARMER_LAYOUT} from './agriculture-layout.js';
 import {EMPTY_WALK_LAYOUT,SHOVEL_WALK_LAYOUT} from './farming-walk-layout.js';
@@ -36,7 +35,7 @@ const oreColor = {2:'#e4ac52',3:'#65d4d9',4:'#b49aeb',5:'#dd9871',6:'#b4c5d0',7:
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 export async function loadAssets() {
-  const characterAssets={...MINER_RIG_ASSETS,'miner-v2-idle':NEW_MINER_ASSETS['miner-v2-idle']};
+  const characterAssets=PIXEL_MINER_ASSETS;
   return Object.fromEntries(await Promise.all([...Object.keys(MINERALS).map(id=>'mineral-'+id),...Object.keys(characterAssets),'trash','mineral-inlays','torch-body','torch-flames','railways-v2','wagon','terrain','agriculture', 'props', 'rims', 'equipment', 'buildings', 'biome-terrain', 'biome-props', 'biome-props-v2'].map(name => new Promise((resolve, reject) => {
     const im = new Image();
     im.onload = () => resolve([name, im]);
@@ -90,8 +89,7 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
   const railTextures=new Map();
   const materialSampler=createMaterialSampler(makeCanvas,TILE);
   const torchArt=createTorchArt(assets,makeCanvas);
-  const seatedMinerArt=assets['miner-v2-idle']?createNewMinerArt(assets,makeCanvas):null;
-  const newMinerArt=assets['miner-rig-south']?createMinerRig(assets,makeCanvas,seatedMinerArt):seatedMinerArt;
+  const newMinerArt=assets['miner-pixel']?createPixelMinerArt(assets,makeCanvas):null;
   function material(c,im,index,x,y,px,py){materialSampler.draw(c,im,index,4,2,x,y,px,py,detailScale);}
   function biomeMaterial(c,im,index,x,y,px,py){materialSampler.draw(c,im,index,6,2,x,y,px,py,detailScale);}
 

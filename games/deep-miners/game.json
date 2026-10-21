@@ -1,7 +1,7 @@
 {
   "id": "deep-miners",
   "title": "Deep Miners",
-  "version": "0.13.16",
+  "version": "0.13.17",
   "engine": "node-web",
   "adapter": "server/launcher.mjs",
   "client": "client",
