@@ -463,7 +463,7 @@ export function createRenderer(assets, makeCanvas = () => document.createElement
   function drawMiner(c,p,clock,ox,oy,seat=null){
     if(!newMinerArt)return miner(c,p,clock,ox,oy,seat);
     const pose=animator.update(p,clock),x=p.x*TILE+ox+(seat?.x||0),y=p.y*TILE+oy+(seat?.y||0);
-    if(!seat){c.fillStyle='#0009';c.beginPath();c.ellipse(x,y+2,19,7,0,0,TAU);c.fill();}
+    if(!seat)newMinerArt.shadow(c,p,pose,x,y);
     newMinerArt.draw(c,p,pose,x,y);
   }
 

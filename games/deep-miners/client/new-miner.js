@@ -1,5 +1,6 @@
 import {MINER_ATLASES,MINER_CELL} from './new-miner-layout.js';
 import {facingRow} from './animation.js';
+import {MINER_GROUND} from './miner-ground-layout.js';
 export const NEW_MINER_ASSETS=Object.fromEntries(Object.entries(MINER_ATLASES).map(([name,sheet])=>['miner-v2-'+name,sheet.asset]));
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 export function minerFrame(player,pose){
@@ -13,6 +14,10 @@ export function minerFrame(player,pose){
  return {atlas,row,column,mirror,seated:!!player.vehicleId};
 }
 const COLORS=[[245,189,98],[80,216,220],[168,125,233],[230,96,114],[99,166,239],[183,210,92]];
+export function minerSupport(frame){
+ if(frame.seated)return null;
+ return MINER_GROUND[frame.atlas]?.[frame.row*MINER_ATLASES[frame.atlas].columns+frame.column]||null;
+}
 export function createNewMinerArt(assets,makeCanvas){
  const cache=new Map(),{width,height,anchorX,anchorY}=MINER_CELL;
  function imageFor(frame,slot){
@@ -32,13 +37,31 @@ export function createNewMinerArt(assets,makeCanvas){
   return {image:canvas,x:0,y:0};
  }
  function draw(c,player,pose,x,y){
-  const frame=minerFrame(player,pose),source=imageFor(frame,player.slot||0);
+  const frame=minerFrame(player,pose),source=imageFor(frame,player.slot||0),support=minerSupport(frame);
   c.save();c.translate(x,y);
   if(frame.seated){c.translate(0,-5);c.scale(.68,.68);}
   if(!player.alive)c.rotate(Math.PI/2);
   if(frame.mirror)c.scale(-1,1);
-  c.drawImage(source.image,source.x,source.y,width,height,-anchorX/2,-anchorY/2,width/2,height/2);
+  const groundOffset=support&&player.alive?(anchorY-support.y)/2:0;
+  c.drawImage(source.image,source.x,source.y,width,height,-anchorX/2,-anchorY/2+groundOffset,width/2,height/2);
   c.restore();return frame;
  }
- return {draw,clear(){cache.clear();},get cacheSize(){return cache.size;}};
+ function softEllipse(c,x,y,rx,ry,opacity){
+  c.save();c.translate(x,y);c.scale(rx,ry);
+  const gradient=c.createRadialGradient(0,0,0,0,0,1);
+  gradient.addColorStop(0,`rgba(12,8,4,${opacity})`);gradient.addColorStop(.45,`rgba(12,8,4,${opacity*.6})`);gradient.addColorStop(1,'rgba(12,8,4,0)');
+  c.fillStyle=gradient;c.fillRect(-1,-1,2,2);c.restore();
+ }
+ function shadow(c,player,pose,x,y){
+  const frame=minerFrame(player,pose),support=minerSupport(frame);if(!support)return;
+  c.save();c.translate(x,y);if(frame.mirror)c.scale(-1,1);
+  const xs=support.contacts.map(p=>p.x),radius=clamp((Math.max(...xs)-Math.min(...xs))/4+8,12,24);
+  softEllipse(c,0,-1.2,radius,3.8,.2);
+  if(player.alive)for(const sole of support.contacts){
+   const weight=pose.walk?clamp(1-(support.y-sole.y)/10,.12,1):1;
+   softEllipse(c,(sole.x-anchorX)/2,(sole.y-support.y)/2+.2,clamp(sole.width/4+1,2.8,8),1.6,.58*weight);
+  }
+  c.restore();
+ }
+ return {draw,shadow,clear(){cache.clear();},get cacheSize(){return cache.size;}};
 }
